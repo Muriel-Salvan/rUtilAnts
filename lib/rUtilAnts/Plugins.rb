@@ -245,7 +245,7 @@ module RUtilAnts
 
     # Initialize a plugins singleton
     def self.initializePlugins
-      $CT_Plugins_Manager = PluginsManager.new
+      $rUtilAnts_Plugins_Manager = PluginsManager.new
       Object.module_eval('include RUtilAnts::Plugins')
     end
 
@@ -259,7 +259,7 @@ module RUtilAnts
     # * *iClassName* (_String_): Name of the plugin class
     # * *iInitCodeBlock* (_Proc_): Code block to call when initializing the real instance (can be nil)
     def registerNewPlugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
-      $CT_Plugins_Manager.registerNewPlugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
+      $rUtilAnts_Plugins_Manager.registerNewPlugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
     end
 
     # Parse plugins from a given directory
@@ -269,7 +269,7 @@ module RUtilAnts
     # * *iDir* (_String_): Directory to parse for plugins
     # * *iBaseClassNames* (_String_): The base class name of plugins to be instantiated
     def parsePluginsFromDir(iCategory, iDir, iBaseClassNames)
-      $CT_Plugins_Manager.parsePluginsFromDir(iCategory, iDir, iBaseClassNames)
+      $rUtilAnts_Plugins_Manager.parsePluginsFromDir(iCategory, iDir, iBaseClassNames)
     end
 
     # Get the named plugin instance
@@ -282,7 +282,7 @@ module RUtilAnts
     # Return:
     # * _Object_: The corresponding plugin, or nil in case of failure
     def getPluginInstance(iCategory, iPluginName, iOnlyIfExtDepsResolved = false, ioRDIInstaller = nil)
-      return $CT_Plugins_Manager.getPluginInstance(iCategory, iPluginName, iOnlyIfExtDepsResolved, ioRDIInstaller)
+      return $rUtilAnts_Plugins_Manager.getPluginInstance(iCategory, iPluginName, iOnlyIfExtDepsResolved, ioRDIInstaller)
     end
 
     # Get the named plugin description
@@ -293,7 +293,7 @@ module RUtilAnts
     # Return:
     # * <em>map<Symbol,Object></em>: The corresponding description, or nil in case of failure
     def getPluginDescription(iCategory, iPluginName)
-      return $CT_Plugins_Manager.getPluginDescription(iCategory, iPluginName)
+      return $rUtilAnts_Plugins_Manager.getPluginDescription(iCategory, iPluginName)
     end
 
     # Give access to a plugin.
@@ -307,14 +307,14 @@ module RUtilAnts
     # * *CodeBlock*: The code called when the plugin is found:
     # ** *ioPlugin* (_Object_): The corresponding plugin
     def accessPlugin(iCategoryName, iPluginName, iOnlyIfExtDepsResolved = false, ioRDIInstaller = nil)
-      $CT_Plugins_Manager.accessPlugin(iCategoryName, iPluginName, iOnlyIfExtDepsResolved, ioRDIInstaller) do |ioPlugin|
+      $rUtilAnts_Plugins_Manager.accessPlugin(iCategoryName, iPluginName, iOnlyIfExtDepsResolved, ioRDIInstaller) do |ioPlugin|
         yield(ioPlugin)
       end
     end
 
     # Clear the registered plugins
     def clearPlugins
-      $CT_Plugins_Manager.clearPlugins
+      $rUtilAnts_Plugins_Manager.clearPlugins
     end
 
     # Get the list of plugin names of a given category
@@ -324,7 +324,7 @@ module RUtilAnts
     # Return:
     # * <em>list<String></em>: The list of plugin names in this category
     def getPluginNames(iCategoryName)
-      return $CT_Plugins_Manager.getPluginNames(iCategoryName)
+      return $rUtilAnts_Plugins_Manager.getPluginNames(iCategoryName)
     end
 
   end

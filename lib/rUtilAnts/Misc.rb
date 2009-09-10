@@ -19,8 +19,8 @@ module RUtilAnts
     # Return:
     # * _String_: The correct file name
     def getValidFileName(iFileName)
-      if ((defined?($CT_Platform_Info) != nil))
-        return iFileName.gsub(/[#{Regexp.escape($CT_Platform_Info.getProhibitedFileNamesCharacters)}]/, '_')
+      if ((defined?($rUtilAnts_Platform_Info) != nil))
+        return iFileName.gsub(/[#{Regexp.escape($rUtilAnts_Platform_Info.getProhibitedFileNamesCharacters)}]/, '_')
       else
         return iFileName
       end

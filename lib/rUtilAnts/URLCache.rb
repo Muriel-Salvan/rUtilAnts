@@ -104,7 +104,7 @@ module RUtilAnts
 
     # Initialize a global cache
     def self.initializeURLCache
-      $CT_URLCache = URLCache.new
+      $rUtilAnts_URLCache = URLCache.new
       Object.module_eval('include RUtilAnts::URLCache')
     end
 
@@ -132,7 +132,7 @@ module RUtilAnts
     # * <em>Object</em>: The corresponding URL content, or nil in case of failure
     # * _Exception_: The error, or nil in case of success
     def getURLContent(iURL, iParameters = {})
-      return $CT_URLCache.getURLContent(iURL, iParameters) do |iContent|
+      return $rUtilAnts_URLCache.getURLContent(iURL, iParameters) do |iContent|
         next yield(iContent)
       end
     end

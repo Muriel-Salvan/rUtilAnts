@@ -185,7 +185,7 @@ module RUtilAnts
 
     # Initialize a global plugins cache
     def self.initializeURLAccess
-      $CT_URLAccess_Manager = Manager.new
+      $rUtilAnts_URLAccess_Manager = Manager.new
       Object.module_eval('include RUtilAnts::URLAccess')
     end
 
@@ -207,7 +207,7 @@ module RUtilAnts
     # ** Returns:
     # ** _Exception_: The error encountered, or nil in case of success
     def accessFile(iURL, iParameters = {})
-      return $CT_URLAccess_Manager.accessFile(iURL, iParameters) do |iContent, iBaseName|
+      return $rUtilAnts_URLAccess_Manager.accessFile(iURL, iParameters) do |iContent, iBaseName|
         yield(iContent, iBaseName)
       end
     end
@@ -219,7 +219,7 @@ module RUtilAnts
     # Return:
     # * _Object_: The URL handler
     def getURLHandler(iURL)
-      return $CT_URLAccess_Manager.getURLHandler(iURL)
+      return $rUtilAnts_URLAccess_Manager.getURLHandler(iURL)
     end
 
   end

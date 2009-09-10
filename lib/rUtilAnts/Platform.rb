@@ -21,7 +21,7 @@ module RUtilAnts
         raise RuntimeError, "Current platform #{RUBY_PLATFORM} is not supported."
       end
       # Create the corresponding object
-      $CT_Platform_Info = PlatformInfo.new
+      $rUtilAnts_Platform_Info = PlatformInfo.new
       Object.module_eval('include RUtilAnts::Platform')
     end
 

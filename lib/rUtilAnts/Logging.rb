@@ -137,8 +137,8 @@ Stack:
         # Call it only if showModal exists
         if (defined?(showModal) == nil)
           # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
-          if (defined?($CT_Platform_Info) != nil)
-            $CT_Platform_Info.sendMsg("A bug has just occurred.
+          if (defined?($rUtilAnts_Platform_Info) != nil)
+            $rUtilAnts_Platform_Info.sendMsg("A bug has just occurred.
 Normally you should never see this message, but this application is not bug-less.
 We are sorry for the inconvenience caused.
 If you want to help improving this application, please inform us of this bug:
@@ -182,9 +182,9 @@ Details:
             ) do |iModalResult, iDialog|
               # Nothing to do
             end
-          elsif (defined?($CT_Platform_Info) != nil)
+          elsif (defined?($rUtilAnts_Platform_Info) != nil)
             # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
-            $CT_Platform_Info.sendMsg(iMsg)
+            $rUtilAnts_Platform_Info.sendMsg(iMsg)
           end
         else
           @ErrorsStack << iMsg
@@ -215,9 +215,9 @@ Details:
             ) do |iModalResult, iDialog|
               # Nothing to do
             end
-          elsif (defined?($CT_Platform_Info) != nil)
+          elsif (defined?($rUtilAnts_Platform_Info) != nil)
             # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
-            $CT_Platform_Info.sendMsg(iMsg)
+            $rUtilAnts_Platform_Info.sendMsg(iMsg)
           end
         else
           @MessagesStack << iMsg
@@ -329,7 +329,7 @@ Details:
     # * *iBugTrackerURL* (_String_): The application's bug tracker URL, used to report bugs
     # * *iSilentOutputs* (_Boolean_): Do we silent outputs (nothing sent to $stdout or $stderr) ? [optional = false]
     def self.initializeLogging(iLibRootDir, iBugTrackerURL, iSilentOutputs = false)
-      $CT_Logging_Logger = RUtilAnts::Logging::Logger.new(iLibRootDir, iBugTrackerURL, iSilentOutputs)
+      $rUtilAnts_Logging_Logger = RUtilAnts::Logging::Logger.new(iLibRootDir, iBugTrackerURL, iSilentOutputs)
       # Add the module accessible from the Kernel
       Object.module_eval('include RUtilAnts::Logging')
     end
@@ -339,7 +339,7 @@ Details:
     # Parameters:
     # * *iGUIToUse* (_Integer_): The GUI constant, or nil if no GUI is provided
     def setGUIForDialogs(iGUIToUse)
-      $CT_Logging_Logger.setGUIForDialogs(iGUIToUse)
+      $rUtilAnts_Logging_Logger.setGUIForDialogs(iGUIToUse)
     end
 
     # Set the debug mode
@@ -347,7 +347,7 @@ Details:
     # Parameters:
     # * *iDebugMode* (_Boolean_): Are we in debug mode ?
     def activateLogDebug(iDebugMode)
-      $CT_Logging_Logger.activateLogDebug(iDebugMode)
+      $rUtilAnts_Logging_Logger.activateLogDebug(iDebugMode)
     end
 
     # Set the stack of the errors to fill.
@@ -357,7 +357,7 @@ Details:
     # Parameters:
     # * *iErrorsStack* (<em>list<String></em>): The stack of errors, or nil to unset it
     def setLogErrorsStack(iErrorsStack)
-      $CT_Logging_Logger.setLogErrorsStack(iErrorsStack)
+      $rUtilAnts_Logging_Logger.setLogErrorsStack(iErrorsStack)
     end
 
     # Set the stack of the messages to fill.
@@ -367,7 +367,7 @@ Details:
     # Parameters:
     # * *iMessagesStack* (<em>list<String></em>): The stack of messages, or nil to unset it
     def setLogMessagesStack(iMessagesStack)
-      $CT_Logging_Logger.setLogMessagesStack(iMessagesStack)
+      $rUtilAnts_Logging_Logger.setLogMessagesStack(iMessagesStack)
     end
 
     # Log an exception
@@ -377,7 +377,7 @@ Details:
     # * *iException* (_Exception_): Exception
     # * *iMsg* (_String_): Message to log
     def logExc(iException, iMsg)
-      $CT_Logging_Logger.logExc(iException, iMsg)
+      $rUtilAnts_Logging_Logger.logExc(iException, iMsg)
     end
 
     # Log a bug
@@ -386,7 +386,7 @@ Details:
     # Parameters:
     # * *iMsg* (_String_): Message to log
     def logBug(iMsg)
-      $CT_Logging_Logger.logBug(iMsg)
+      $rUtilAnts_Logging_Logger.logBug(iMsg)
     end
 
     # Log an error.
@@ -395,7 +395,7 @@ Details:
     # Parameters:
     # * *iMsg* (_String_): Message to log
     def logErr(iMsg)
-      $CT_Logging_Logger.logErr(iMsg)
+      $rUtilAnts_Logging_Logger.logErr(iMsg)
     end
 
     # Log a normal message to the user
@@ -404,7 +404,7 @@ Details:
     # Parameters:
     # * *iMsg* (_String_): Message to log
     def logMsg(iMsg)
-      $CT_Logging_Logger.logMsg(iMsg)
+      $rUtilAnts_Logging_Logger.logMsg(iMsg)
     end
 
     # Log an info.
@@ -413,7 +413,7 @@ Details:
     # Parameters:
     # * *iMsg* (_String_): Message to log
     def logInfo(iMsg)
-      $CT_Logging_Logger.logInfo(iMsg)
+      $rUtilAnts_Logging_Logger.logInfo(iMsg)
     end
 
     # Log a debugging info.
@@ -422,7 +422,7 @@ Details:
     # Parameters:
     # * *iMsg* (_String_): Message to log
     def logDebug(iMsg)
-      $CT_Logging_Logger.logDebug(iMsg)
+      $rUtilAnts_Logging_Logger.logDebug(iMsg)
     end
 
   end
