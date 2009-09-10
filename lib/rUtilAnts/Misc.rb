@@ -36,7 +36,7 @@ module RUtilAnts
     def extractZipFile(iZipFileName, iDirName)
       rSuccess = true
 
-      # Extract content of iFileName to #{$PBS_ExtDllsDir}/#{iLibName}
+      # Extract content of iFileName to iDirName
       begin
         # We don't put this require in the global scope as it needs first a DLL to be loaded by plugins
         # TODO: Use RDI if possible to ensure the dependency
