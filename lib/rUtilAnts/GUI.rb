@@ -161,9 +161,6 @@ module RUtilAnts
         return rBitmap, rError
       end
       
-      p rReadBitmap
-      p rReadError
-
       # Check if it is ok and the error set correctly
       if ((rReadBitmap == nil) and
           (rReadError == nil))
