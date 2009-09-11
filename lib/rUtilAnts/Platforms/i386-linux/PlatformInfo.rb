@@ -132,8 +132,7 @@ module RUtilAnts
       # Return:
       # * _String_: String of prohibited characters in file names
       def getProhibitedFileNamesCharacters
-        # TODO
-        return ''
+        return '/'
       end
 
     end

@@ -122,7 +122,7 @@ module RUtilAnts
     # ** *:ForceLoad* (_Boolean_): Do we force to refresh the cache ? [optional = false]
     # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
     # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
-    # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
+    # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itself will be given the code block. [optional = false]
     # * _CodeBlock_: The code returning the object corresponding to the content:
     # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
     # ** Returns:

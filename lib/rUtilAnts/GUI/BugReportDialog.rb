@@ -40,7 +40,8 @@ Thanks.",
         )
         lTCMessage.append_text(iMsg)
         lTCMessage.set_selection(0, 0)
-        lSBIcon = Wx::StaticBitmap.new(self, Wx::ID_ANY, getBitmapFromURL("#{File.dirname(__FILE__)}/Bug.png"))
+        lBitmap, lError = getBitmapFromURL("#{File.dirname(__FILE__)}/Bug.png")
+        lSBIcon = Wx::StaticBitmap.new(self, Wx::ID_ANY, lBitmap)
         lBClose = Wx::Button.new(self, Wx::ID_OK, 'Close')
         lBSend = Wx::Button.new(self, Wx::ID_ANY, 'Send Bug report')
         lHCTrackerURL = Wx::HyperlinkCtrl.new(self, Wx::ID_ANY, 'Bug tracker', iBugTrackerURL,

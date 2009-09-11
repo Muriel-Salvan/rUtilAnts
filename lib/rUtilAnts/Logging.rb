@@ -62,6 +62,14 @@ module RUtilAnts
         end
       end
 
+      # Set the log file to use (can be nil to stop logging into a file)
+      #
+      # Parameters:
+      # * *iFileName* (_String_): Log file name (can be nil)
+      def setLogFile(iFileName)
+        @LogFile = iFileName
+      end
+
       # Indicate which GUI to be used to display dialogs.
       #
       # Parameters:
@@ -332,6 +340,14 @@ Details:
       $rUtilAnts_Logging_Logger = RUtilAnts::Logging::Logger.new(iLibRootDir, iBugTrackerURL, iSilentOutputs)
       # Add the module accessible from the Kernel
       Object.module_eval('include RUtilAnts::Logging')
+    end
+
+    # Set the log file to use (can be nil to stop logging into a file)
+    #
+    # Parameters:
+    # * *iFileName* (_String_): Log file name (can be nil)
+    def setLogFile(iFileName)
+      $rUtilAnts_Logging_Logger.setLogFile(iFileName)
     end
 
     # Indicate which GUI to be used to display dialogs.

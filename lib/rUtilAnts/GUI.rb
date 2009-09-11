@@ -94,29 +94,83 @@ module RUtilAnts
       lDialog.destroy
     end
 
-    # Get a bitmap from a given URL
+    # Get a bitmap/icon from a URL.
+    # If no type has been provided, it detects the type of icon based on the file extension.
+    # Use URL caching.
     #
     # Parameters:
-    # * *iURL* (_String_): Bitmap's URL
+    # * *iFileName* (_String_): The file name
+    # * *iIconIndex* (_Integer_): Specify the icon index (used by Windows for EXE/DLL/ICO...) [optional = nil]
+    # * *iBitmapTypes* (_Integer_ or <em>list<Integer></em>): Bitmap/Icon type. Can be nil for autodetection. Can be the list of types to try. [optional = nil]
     # Return:
-    # * <em>Wx::Bitmap</em>: The corresponding bitmap, or nil in case of failure
-    def getBitmapFromURL(iURL)
-      rBitmap = nil
+    # * <em>Wx::Bitmap</em>: The bitmap, or nil in case of failure
+    # * _Exception_: The exception containing details about the error, or nil in case of success
+    def getBitmapFromURL(iFileName, iIconIndex = nil, iBitmapTypes = nil)
+      rReadBitmap = nil
+      rReadError = nil
 
-      # First, test if we have the files cache
-      rBitmap, lError = getURLContent(iURL, {:LocalFileAccess => true}) do |iLocalFileName|
-        rContent = nil
+      rReadBitmap, rReadError = getURLContent(iFileName, :LocalFileAccess => true) do |iRealFileName|
+        rBitmap = nil
         rError = nil
-        begin
-          rContent = Wx::Bitmap.new(iLocalFileName)
-        rescue Exception
-          rError = $!
-          rContent = nil
+
+        lBitmapTypesToTry = iBitmapTypes
+        if (iBitmapTypes == nil)
+          # Autodetect
+          lBitmapTypesToTry = [ Wx::Bitmap::BITMAP_TYPE_GUESS[File.extname(iFileName).downcase[1..-1]] ]
+          if (lBitmapTypesToTry == [ nil ])
+            # Here we handle extensions that wxruby is not aware of
+            case File.extname(iFileName).upcase
+            when '.CUR', '.ANI', '.EXE', '.DLL'
+              lBitmapTypesToTry = [ Wx::BITMAP_TYPE_ICO ]
+            else
+              logErr "Unable to determine the bitmap type corresponding to extension #{File.extname(iFileName).upcase}. Assuming ICO."
+              lBitmapTypesToTry = [ Wx::BITMAP_TYPE_ICO ]
+            end
+          end
+        elsif (!iBitmapTypes.is_a?(Array))
+          lBitmapTypesToTry = [ iBitmapTypes ]
         end
-        next rContent, rError
+        # Try each type
+        lBitmapTypesToTry.each do |iBitmapType|
+          # Special case for the ICO type
+          if (iBitmapType == Wx::BITMAP_TYPE_ICO)
+            lIconID = iRealFileName
+            if ((iIconIndex != nil) and
+                (iIconIndex != 0))
+              # TODO: Currently this implementation does not work. Uncomment when ok.
+              #lIconID += ";#{iIconIndex}"
+            end
+            rBitmap = Wx::Bitmap.new
+            begin
+              rBitmap.copy_from_icon(Wx::Icon.new(lIconID, Wx::BITMAP_TYPE_ICO))
+            rescue Exception
+              rError = $!
+              rBitmap = nil
+            end
+          else
+            rBitmap = Wx::Bitmap.new(iRealFileName, iBitmapType)
+          end
+          if ((rBitmap != nil) and
+              (rBitmap.is_ok))
+            break
+          else
+            rBitmap = nil
+          end
+        end
+
+        return rBitmap, rError
+      end
+      
+      p rReadBitmap
+      p rReadError
+
+      # Check if it is ok and the error set correctly
+      if ((rReadBitmap == nil) and
+          (rReadError == nil))
+        rError = RuntimeError.new("Unable to get bitmap from #{iFileName}")
       end
 
-      return rBitmap
+      return rReadBitmap, rReadError
     end
 
   end

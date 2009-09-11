@@ -46,7 +46,6 @@ module RUtilAnts
       # Parameters:
       # * *iURL* (_String_): The URL (used to detect cyclic redirections)
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *:ForceLoad* (_Boolean_): Do we force to refresh the cache ? [optional = false]
       # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
       # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
       # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
@@ -196,7 +195,6 @@ module RUtilAnts
     # Parameters:
     # * *iURL* (_String_): The URL (used to detect cyclic redirections)
     # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *:ForceLoad* (_Boolean_): Do we force to refresh the cache ? [optional = false]
     # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
     # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
     # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]

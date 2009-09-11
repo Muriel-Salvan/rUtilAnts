@@ -10,6 +10,16 @@ module RUtilAnts
   # * Description files support: plugins files can give a description file, enumerating their dependencies, description...
   # * Support for plugins categories
   # * [If RDI is present]: Try to install dependencies before loading plugin instances
+  #
+  # Here are the following symbols that can be used in plugins' descriptions and are already interpreted by rUtilAnts:
+  # * *Dependencies* (<em>list<RDI::Model::DependencyDescription></em>): List of dependencies this plugin depends on
+  # * *PluginsDependencies* (<em>list[String,String]</em>): List of other plugins ([Category,Plugin]) this plugin depends on
+  # Here are the symbols that are reserved bu rUtilAnts:
+  # * *PluginInstance* (_Object_): The real plugin instance
+  # * *PluginFileName* (_String_): The plugin's file name (or nil if none)
+  # * *PluginClassName* (_String_): Name of the plugin's class to instantiate
+  # * *PluginInitCode* (_Proc_): Code to call when instantiating the plugin (or nil if none)
+  # * *PluginIndex* (_Integer_): Unique incremental ID identifying the plugin in its category
   module Plugins
 
     # Exception thrown when an unknown plugin is encountered
@@ -107,7 +117,8 @@ module RUtilAnts
         end
       end
 
-      # Get the named plugin instance
+      # Get the named plugin instance.
+      # Uses RDI if given in parameters or if Main RDI Installer defined to resolve Plugins' dependencies.
       #
       # Parameters:
       # * *iCategory* (_Object_): Category those plugins will belong to
@@ -129,17 +140,24 @@ module RUtilAnts
             if (lDesc[:PluginInstance] == nil)
               lSuccess = true
               # If RDI is present, call it to get dependencies first if needed
-              if ((ioRDIInstaller != nil) and
-                  (lDesc[:Dependencies] != nil))
-                if (iOnlyIfExtDepsResolved)
-                  lSuccess = false
-                else
-                  # Load other dependencies
-                  lError, lContextModifiers, lIgnored, lUnresolved = ioRDIInstaller.ensureDependencies(lDesc[:Dependencies])
-                  lSuccess = ((lError == nil) and
-                              (lUnresolved.empty?))
-                  if (!lSuccess)
-                    logErr "Could not load dependencies for plugin #{iPluginName}."
+              if (lDesc[:Dependencies] != nil)
+                lRDIInstaller = ioRDIInstaller
+                # If it is not given as parameter, try getting the singleton
+                if ((ioRDIInstaller == nil) and
+                    (defined?(RDI::Installer) != nil))
+                  lRDIInstaller = RDI::Installer.getMainInstance
+                end
+                if (lRDIInstaller != nil)
+                  if (iOnlyIfExtDepsResolved)
+                    lSuccess = false
+                  else
+                    # Load other dependencies
+                    lError, lContextModifiers, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(lDesc[:Dependencies])
+                    lSuccess = ((lError == nil) and
+                                (lUnresolved.empty?))
+                    if (!lSuccess)
+                      logErr "Could not load dependencies for plugin #{iPluginName}."
+                    end
                   end
                 end
               end
