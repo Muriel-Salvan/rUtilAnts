@@ -161,7 +161,15 @@ module RUtilAnts
                 end
                 if (lRDIInstaller != nil)
                   if (lOnlyIfExtDepsResolved)
-                    lSuccess = false
+                    # Test that each dependency is accessible
+                    lSuccess = true
+                    lDesc[:Dependencies].each do |iDepDesc|
+                      lSuccess = lRDIInstaller.testDependency(iDepDesc)
+                      if (!lSuccess)
+                        # It is useless to continue
+                        break
+                      end
+                    end
                   else
                     # Load other dependencies
                     lError, lContextModifiers, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(lDesc[:Dependencies])
