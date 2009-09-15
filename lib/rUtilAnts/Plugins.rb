@@ -206,7 +206,7 @@ module RUtilAnts
                       if (!lIgnored.empty?)
                         rError = PluginDependenciesIgnoredError.new("Unable to load plugin #{iPluginName} without its dependencies (ignored #{lIgnored.size} dependencies).")
                       elsif (!lUnresolved.empty?)
-                        rError = PluginDependenciesUnresolvedError.new("Unable to load plugin #{iPluginName} without its dependencies (couldn't load #{lUnresolved.size} dependencies).")
+                        rError = PluginDependenciesUnresolvedError.new("Unable to load plugin #{iPluginName} without its dependencies (couldn't load #{lUnresolved.size} dependencies): #{lError}")
                       else
                         rError = PluginDependenciesError.new("Could not load dependencies for plugin #{iPluginName}: #{lError}")
                       end
@@ -223,7 +223,7 @@ module RUtilAnts
                     lSuccess = (lError == nil)
                     if (!lSuccess)
                       # Don't try further
-                      rError = PluginDependenciesError.new("Could not load plugins dependencies for plugin #{iPluginName}.")
+                      rError = PluginDependenciesError.new("Could not load plugins dependencies for plugin #{iPluginName}: #{lError}.")
                       break
                     end
                   end

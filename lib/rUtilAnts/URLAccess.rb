@@ -16,6 +16,10 @@ module RUtilAnts
     CONTENT_LOCALFILENAME = 3
     CONTENT_LOCALFILENAME_TEMPORARY = 4
 
+    # Exception class handling redirection errors
+    class RedirectionError < RuntimeError
+    end
+
     # Class
     class Manager
 
