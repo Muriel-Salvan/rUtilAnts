@@ -116,14 +116,14 @@ module RUtilAnts
         lBitmapTypesToTry = iBitmapTypes
         if (iBitmapTypes == nil)
           # Autodetect
-          lBitmapTypesToTry = [ Wx::Bitmap::BITMAP_TYPE_GUESS[File.extname(iFileName).downcase[1..-1]] ]
+          lBitmapTypesToTry = [ Wx::Bitmap::BITMAP_TYPE_GUESS[File.extname(iRealFileName).downcase[1..-1]] ]
           if (lBitmapTypesToTry == [ nil ])
             # Here we handle extensions that wxruby is not aware of
-            case File.extname(iFileName).upcase
+            case File.extname(iRealFileName).upcase
             when '.CUR', '.ANI', '.EXE', '.DLL'
               lBitmapTypesToTry = [ Wx::BITMAP_TYPE_ICO ]
             else
-              logErr "Unable to determine the bitmap type corresponding to extension #{File.extname(iFileName).upcase}. Assuming ICO."
+              logErr "Unable to determine the bitmap type corresponding to extension #{File.extname(iRealFileName).upcase}. Assuming ICO."
               lBitmapTypesToTry = [ Wx::BITMAP_TYPE_ICO ]
             end
           end

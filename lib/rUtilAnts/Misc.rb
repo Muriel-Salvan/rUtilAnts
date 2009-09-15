@@ -32,9 +32,9 @@ module RUtilAnts
     # * *iZipFileName* (_String_): The zip file name to extract content from
     # * *iDirName* (_String_): The name of the directory to store the zip to
     # Return:
-    # * _Boolean_: Success ?
+    # * _Exception_: Error, or nil in case of success
     def extractZipFile(iZipFileName, iDirName)
-      rSuccess = true
+      rError = nil
 
       # Use RDI if possible to ensure the dependencies on zlib.dll and rubyzip
       if (defined?(RDI) != nil)
@@ -60,12 +60,12 @@ module RUtilAnts
           end
           if ((lDLLDep != nil) and
               (!lRDIInstaller.testDependency(lDLLDep)))
-            logErr "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and continue once it is installed)."
+            logErr "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and click OK once it is installed)."
           end
           # Then, ensure the gem dependency
-          lError, lCMApplied, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(
+          rError, lCMApplied, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(
             [
-              RDI::Model::DependencyDescription.new('DummyBinary').addDescription( {
+              RDI::Model::DependencyDescription.new('RubyZip').addDescription( {
                 :Testers => [
                   {
                     :Type => 'RubyRequires',
@@ -87,12 +87,14 @@ module RUtilAnts
               } )
             ]
           )
-          rSuccess = ((lError == nil) and
-                       (lIgnored.empty?) and
-                       (lUnresolved.empty?))
+          if (!lIgnored.empty?)
+            rError = RuntimeError.new("Unable to install RubyZip without its dependencies (#{lIgnored.size} ignored dependencies).")
+          elsif (!lUnresolved.empty?)
+            rError = RuntimeError.new("Unable to install RubyZip without its dependencies (#{lUnresolved.size} unresolved dependencies):\n#{rError}")
+          end
         end
       end
-      if (rSuccess)
+      if (rError == nil)
         # Extract content of iFileName to iDirName
         begin
           # We don't put this require in the global scope as it needs first a DLL to be loaded by plugins
@@ -104,17 +106,20 @@ module RUtilAnts
                 FileUtils::mkdir_p(lDestFileName)
               else
                 FileUtils::mkdir_p(File.dirname(lDestFileName))
+                # If the file already exist, first delete it to replace it with ours
+                if (File.exists?(lDestFileName))
+                  File.unlink(lDestFileName)
+                end
                 lEntry.extract(lDestFileName)
               end
             end
           end
         rescue Exception
-          logExc $!, "Exception while unzipping #{iZipFileName} into #{iDirName}"
-          rSuccess = false
+          rError = $!
         end
       end
 
-      return rSuccess
+      return rError
     end
 
   end
