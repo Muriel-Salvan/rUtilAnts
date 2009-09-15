@@ -29,6 +29,30 @@ module RUtilAnts
     class UnknownPluginError < RuntimeError
     end
 
+    # Exception thrown when an unknown category is encountered
+    class UnknownCategoryError < RuntimeError
+    end
+
+    # Exception thrown when a plugin is disabled
+    class DisabledPluginError < RuntimeError
+    end
+
+    # Exception thrown when a plugin can't load its dependencies
+    class PluginDependenciesError < RuntimeError
+    end
+
+    # Exception thrown when a plugin fails to instantiate
+    class FailedPluginError < RuntimeError
+    end
+
+    # Exception thrown when a plugin can't load its dependencies upon user request (ignore dependencies installation)
+    class PluginDependenciesIgnoredError < RuntimeError
+    end
+
+    # Exception thrown when a plugin can't load its dependencies, but the user is aware of it already
+    class PluginDependenciesUnresolvedError < RuntimeError
+    end
+
     # Main class storing info about plugins
     class PluginsManager
 
@@ -133,8 +157,10 @@ module RUtilAnts
       # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
       # Return:
       # * _Object_: The corresponding plugin, or nil in case of failure
+      # * _Exception_: The error, or nil in case of success
       def getPluginInstance(iCategory, iPluginName, iParameters = {})
         rPlugin = nil
+        rError = nil
 
         lOnlyIfExtDepsResolved = iParameters[:OnlyIfExtDepsResolved]
         if (lOnlyIfExtDepsResolved == nil)
@@ -142,13 +168,13 @@ module RUtilAnts
         end
         lRDIInstaller = iParameters[:RDIInstaller]
         if (@Plugins[iCategory] == nil)
-          logErr "Unknown plugins category #{iCategory}."
+          rError = UnknownCategoryError.new("Unknown plugins category #{iCategory}.")
         else
           lDesc = @Plugins[iCategory][iPluginName]
           if (lDesc == nil)
-            logErr "Unknown plugin #{iPluginName} in category #{iCategory}."
+            rError = UnknownPluginError.new("Unknown plugin #{iPluginName} in category #{iCategory}.")
           elsif (lDesc[:Enabled] == false)
-            logErr "Plugin #{iPluginName} in category #{iCategory} is disabled."
+            rError = DisabledPluginError.new("Plugin #{iPluginName} in category #{iCategory} is disabled.")
           else
             if (lDesc[:PluginInstance] == nil)
               lSuccess = true
@@ -174,9 +200,16 @@ module RUtilAnts
                     # Load other dependencies
                     lError, lContextModifiers, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(lDesc[:Dependencies])
                     lSuccess = ((lError == nil) and
+                                (lIgnored.empty?) and
                                 (lUnresolved.empty?))
                     if (!lSuccess)
-                      logErr "Could not load dependencies for plugin #{iPluginName}."
+                      if (!lIgnored.empty?)
+                        rError = PluginDependenciesIgnoredError.new("Unable to load plugin #{iPluginName} without its dependencies (ignored #{lIgnored.size} dependencies).")
+                      elsif (!lUnresolved.empty?)
+                        rError = PluginDependenciesUnresolvedError.new("Unable to load plugin #{iPluginName} without its dependencies (couldn't load #{lUnresolved.size} dependencies).")
+                      else
+                        rError = PluginDependenciesError.new("Could not load dependencies for plugin #{iPluginName}: #{lError}")
+                      end
                     end
                   end
                 end
@@ -186,33 +219,37 @@ module RUtilAnts
                   # Load other plugins
                   lDesc[:PluginsDependencies].each do |iPluginInfo|
                     iPluginCategory, iPluginName = iPluginInfo
-                    lSuccess = (getPluginInstance(iPluginCategory, iPluginName, iParameters) != nil)
+                    lPlugin, lError = getPluginInstance(iPluginCategory, iPluginName, iParameters)
+                    lSuccess = (lError == nil)
                     if (!lSuccess)
                       # Don't try further
+                      rError = PluginDependenciesError.new("Could not load plugins dependencies for plugin #{iPluginName}.")
                       break
                     end
                   end
                 end
-                # Load the plugin
-                begin
-                  # If the file name is to be required, do it now
-                  if (lDesc[:PluginFileName] != nil)
-                    require lDesc[:PluginFileName]
+                if (lSuccess)
+                  # Load the plugin
+                  begin
+                    # If the file name is to be required, do it now
+                    if (lDesc[:PluginFileName] != nil)
+                      require lDesc[:PluginFileName]
+                    end
+                    lPlugin = eval("#{lDesc[:PluginClassName]}.new")
+                    # Add a reference to the description in the instantiated object
+                    lPlugin.instance_variable_set(:@rUtilAnts_Desc, lDesc)
+                    def lPlugin.pluginDescription
+                      return @rUtilAnts_Desc
+                    end
+                    # Register this instance
+                    lDesc[:PluginInstance] = lPlugin
+                    # If needed, execute the init code
+                    if (lDesc[:PluginInitCode] != nil)
+                      lDesc[:PluginInitCode].call(lPlugin)
+                    end
+                  rescue Exception
+                    rError = FailedPluginError.new("Error while loading file #{lDesc[:PluginFileName]} and instantiating #{lDesc[:PluginClassName]}: #{$!}. Ignoring this plugin.")
                   end
-                  lPlugin = eval("#{lDesc[:PluginClassName]}.new")
-                  # Add a reference to the description in the instantiated object
-                  lPlugin.instance_variable_set(:@rUtilAnts_Desc, lDesc)
-                  def lPlugin.pluginDescription
-                    return @rUtilAnts_Desc
-                  end
-                  # Register this instance
-                  lDesc[:PluginInstance] = lPlugin
-                  # If needed, execute the init code
-                  if (lDesc[:PluginInitCode] != nil)
-                    lDesc[:PluginInitCode].call(lPlugin)
-                  end
-                rescue Exception
-                  logExc $!, "Error while loading file #{lDesc[:PluginFileName]} and instantiating #{lDesc[:PluginClassName]}. Ignoring this plugin."
                 end
               end
             end
@@ -220,7 +257,7 @@ module RUtilAnts
           end
         end
 
-        return rPlugin
+        return rPlugin, rError
       end
 
       # Get the named plugin description
@@ -257,9 +294,9 @@ module RUtilAnts
       # * *CodeBlock*: The code called when the plugin is found:
       # ** *ioPlugin* (_Object_): The corresponding plugin
       def accessPlugin(iCategoryName, iPluginName, iParameters)
-        lPlugin = getPluginInstance(iCategoryName, iPluginName, iParameters = {})
+        lPlugin, lError = getPluginInstance(iCategoryName, iPluginName, iParameters = {})
         if (lPlugin == nil)
-          raise UnknownPluginError, "Could not get plugin #{iPluginName} in category #{iCategoryName}"
+          raise lError
         else
           yield(lPlugin)
         end
@@ -368,6 +405,7 @@ module RUtilAnts
     # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
     # Return:
     # * _Object_: The corresponding plugin, or nil in case of failure
+    # * _Exception_: The error, or nil in case of success
     def getPluginInstance(iCategory, iPluginName, iParameters = {})
       return $rUtilAnts_Plugins_Manager.getPluginInstance(iCategory, iPluginName, iParameters)
     end

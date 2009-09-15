@@ -15,7 +15,7 @@ module RUtilAnts
     def self.initializePlatform
       # Require the platform info
       begin
-        require "RUtilAnts/Platforms/#{RUBY_PLATFORM}/PlatformInfo.rb"
+        require "RUtilAnts/Platforms/#{RUBY_PLATFORM}/PlatformInfo"
       rescue Exception
         logBug "Current platform #{RUBY_PLATFORM} is not supported."
         raise RuntimeError, "Current platform #{RUBY_PLATFORM} is not supported."

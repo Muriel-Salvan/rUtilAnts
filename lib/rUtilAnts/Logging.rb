@@ -160,7 +160,7 @@ Details:
           end
         else
           # We require the file here, as we hope it will not be required often
-          require 'RUtilAnts/GUI/BugReportDialog.rb'
+          require 'RUtilAnts/GUI/BugReportDialog'
           showModal(GUI::BugReportDialog, nil, lCompleteMsg, @BugTrackerURL) do |iModalResult, iDialog|
             # Nothing to do
           end

@@ -28,7 +28,7 @@ module RUtilAnts
         Dir.glob("#{File.dirname(__FILE__)}/URLHandlers/*.rb").each do |iFileName|
           begin
             lPluginName = File.basename(iFileName)[0..-4]
-            require "RUtilAnts/URLHandlers/#{lPluginName}.rb"
+            require "RUtilAnts/URLHandlers/#{lPluginName}"
             @Plugins[lPluginName] = [
               eval("RUtilAnts::URLCache::URLHandlers::#{lPluginName}::getMatchingRegexps"),
               "RUtilAnts::URLCache::URLHandlers::#{lPluginName}"
