@@ -155,6 +155,7 @@ module RUtilAnts
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
       # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
       # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
+      # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
       # Return:
       # * _Object_: The corresponding plugin, or nil in case of failure
       # * _Exception_: The error, or nil in case of success
@@ -167,6 +168,7 @@ module RUtilAnts
           lOnlyIfExtDepsResolved = false
         end
         lRDIInstaller = iParameters[:RDIInstaller]
+        lRDIContextModifiers = iParameters[:RDIContextModifiers]
         if (@Plugins[iCategory] == nil)
           rError = UnknownCategoryError.new("Unknown plugins category #{iCategory}.")
         else
@@ -199,6 +201,9 @@ module RUtilAnts
                   else
                     # Load other dependencies
                     lError, lContextModifiers, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(lDesc[:Dependencies])
+                    if (lRDIContextModifiers != nil)
+                      lRDIContextModifiers.merge!(lContextModifiers)
+                    end
                     lSuccess = ((lError == nil) and
                                 (lIgnored.empty?) and
                                 (lUnresolved.empty?))
@@ -291,10 +296,11 @@ module RUtilAnts
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
       # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
       # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
+      # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
       # * *CodeBlock*: The code called when the plugin is found:
       # ** *ioPlugin* (_Object_): The corresponding plugin
-      def accessPlugin(iCategoryName, iPluginName, iParameters)
-        lPlugin, lError = getPluginInstance(iCategoryName, iPluginName, iParameters = {})
+      def accessPlugin(iCategoryName, iPluginName, iParameters = {})
+        lPlugin, lError = getPluginInstance(iCategoryName, iPluginName, iParameters)
         if (lPlugin == nil)
           raise lError
         else
@@ -403,6 +409,7 @@ module RUtilAnts
     # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
     # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
     # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
+    # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
     # Return:
     # * _Object_: The corresponding plugin, or nil in case of failure
     # * _Exception_: The error, or nil in case of success
@@ -430,6 +437,7 @@ module RUtilAnts
     # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
     # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
     # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
+    # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
     # * *CodeBlock*: The code called when the plugin is found:
     # ** *ioPlugin* (_Object_): The corresponding plugin
     def accessPlugin(iCategoryName, iPluginName, iParameters = {})

@@ -60,7 +60,12 @@ module RUtilAnts
           end
           if ((lDLLDep != nil) and
               (!lRDIInstaller.testDependency(lDLLDep)))
-            logErr "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and click OK once it is installed)."
+            # Try adding the default local location for libraries
+            lRDIInstaller.ensureLocationInContext('LibraryPath', lRDIInstaller.getDefaultInstallLocation('Download', RDI::DEST_LOCAL))
+            # Try again
+            if (!lRDIInstaller.testDependency(lDLLDep))
+              logErr "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and click OK once it is installed)."
+            end
           end
           # Then, ensure the gem dependency
           rError, lCMApplied, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(
