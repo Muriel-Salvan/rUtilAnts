@@ -93,6 +93,7 @@ module RUtilAnts
           rContent = nil
 
           begin
+            require 'net/http'
             Net::HTTP.start(@URLServer) do |iHTTPConnection|
               lResponse = iHTTPConnection.get("/#{@URLPath}")
               if ((iFollowRedirections) and

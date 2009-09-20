@@ -93,6 +93,7 @@ module RUtilAnts
           rContent = nil
 
           begin
+            require 'net/ftp'
             lFTPConnection = Net::FTP.new(@URLServer)
             lFTPConnection.login
             lFTPConnection.chdir(File.dirname(@URLPath))

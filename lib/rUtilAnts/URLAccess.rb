@@ -109,6 +109,7 @@ module RUtilAnts
             lBaseName = lURLHandler.getCorrespondingFileBaseName
             lLocalFileName = "#{Dir.tmpdir}/URLCache/#{lBaseName}"
             begin
+              require 'fileutils'
               FileUtils::mkdir_p(File.dirname(lLocalFileName))
               File.open(lLocalFileName, 'wb') do |oFile|
                 oFile.write(lContent)
