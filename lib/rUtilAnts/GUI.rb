@@ -49,6 +49,183 @@ module RUtilAnts
 
     end
 
+    # Generic progress dialog, meant to be overriden to customize behaviour
+    class ProgressDialog < Wx::Dialog
+
+      # Constructor
+      #
+      # Parameters:
+      # * *iParentWindow* (<em>Wx::Window</em>): Parent window
+      # * *iCancellable* (_Boolean_): Can we cancel this dialog ?
+      def initialize(iParentWindow, iCancellable)
+        super(iParentWindow)
+
+        # Has the transaction been cancelled ?
+        @Cancelled = false
+
+        # Create components
+        @GProgress = Wx::Gauge.new(self, Wx::ID_ANY, 0)
+        lBCancel = nil
+        if (iCancellable)
+          lBCancel = Wx::Button.new(self, Wx::CANCEL, 'Cancel')
+        end
+        lPTitle = getTitlePanel
+
+        # Put them into sizers
+        lMainSizer = Wx::BoxSizer.new(Wx::VERTICAL)
+        lMainSizer.add_item(lPTitle, :flag => Wx::GROW, :proportion => 1)
+        if (iCancellable)
+          lBottomSizer = Wx::BoxSizer.new(Wx::HORIZONTAL)
+          lBottomSizer.add_item(@GProgress, :flag => Wx::ALIGN_CENTER, :proportion => 1)
+          lBottomSizer.add_item(lBCancel, :flag => Wx::ALIGN_CENTER, :proportion => 0)
+          lMainSizer.add_item(lBottomSizer, :flag => Wx::GROW, :proportion => 0)
+        else
+          lMainSizer.add_item(@GProgress, :flag => Wx::GROW, :proportion => 0)
+        end
+        self.sizer = lMainSizer
+
+        # Set events
+        if (iCancellable)
+          evt_button(lBCancel) do |iEvent|
+            @Cancelled = true
+            lBCancel.enable(false)
+            lBCancel.label = 'Cancelling ...'
+            self.fit
+          end
+        end
+
+        self.fit
+
+      end
+
+      # Has the dialog been cancelled ?
+      #
+      # Return:
+      # * _Boolean_: Has the dialog been cancelled ?
+      def isCancelled?
+        return @Cancelled
+      end
+
+      # Set the progress range
+      #
+      # Parameters:
+      # * *iRange* (_Integer_): The progress range
+      def setRange(iRange)
+        @GProgress.range = iRange
+      end
+
+      # Set the progress value
+      #
+      # Parameters:
+      # * *iValue* (_Integer_): The progress value
+      def setValue(iValue)
+        @GProgress.value = iValue
+        self.refresh
+        self.update
+      end
+
+      # Increment the progress value
+      #
+      # Parameters:
+      # * *iIncrement* (_Integer_): Value to increment [optional = 1]
+      def incValue(iIncrement = 1)
+        @GProgress.value += iIncrement
+        self.refresh
+        self.update
+      end
+
+    end
+
+    # Text progress dialog
+    class TextProgressDialog < ProgressDialog
+
+      # Constructor
+      #
+      # Parameters:
+      # * *iParentWindow* (<em>Wx::Window</em>): Parent window
+      # * *iCancellable* (_Boolean_): Can we cancel this dialog ?
+      # * *iText* (_String_): The text to display
+      def initialize(iParentWindow, iCancellable, iText)
+        @Text = iText
+        super(iParentWindow, iCancellable)
+      end
+
+      # Get the panel to display as title
+      #
+      # Return:
+      # * <em>Wx::Panel</em>: The panel to use as a title
+      def getTitlePanel
+        rPanel = Wx::Panel.new(self)
+
+        # Create components
+        @STText = Wx::StaticText.new(self, Wx::ID_ANY, @Text)
+
+        # Put them into sizers
+        lMainSizer = Wx::BoxSizer.new(Wx::VERTICAL)
+        lMainSizer.add_item(@STText, :flag => Wx::GROW, :proportion => 1)
+        rPanel.sizer = lMainSizer
+
+        return rPanel
+      end
+
+      # Set the text
+      #
+      # Parameters:
+      # * *iText* (_String_): The text
+      def setText(iText)
+        @STText.label = iText
+        self.fit
+      end
+
+    end
+
+    # Bitmap progress dialog
+    class BitmapProgressDialog < ProgressDialog
+
+      # Constructor
+      #
+      # Parameters:
+      # * *iParentWindow* (<em>Wx::Window</em>): Parent window
+      # * *iCancellable* (_Boolean_): Can we cancel this dialog ?
+      # * *iBitmap* (<em>Wx::Bitmap</em>): The bitmap to display (can be nil)
+      def initialize(iParentWindow, iCancellable, iBitmap)
+        @Bitmap = iBitmap
+        super(iParentWindow, iCancellable)
+      end
+
+      # Get the panel to display as title
+      #
+      # Return:
+      # * <em>Wx::Panel</em>: The panel to use as a title
+      def getTitlePanel
+        rPanel = Wx::Panel.new(self)
+
+        # Create components
+        if (@Bitmap == nil)
+          @SBBitmap = Wx::StaticBitmap.new(self, Wx::ID_ANY, Wx::Bitmap.new)
+        else
+          @SBBitmap = Wx::StaticBitmap.new(self, Wx::ID_ANY, @Bitmap)
+        end
+
+        # Put them into sizers
+        lMainSizer = Wx::BoxSizer.new(Wx::VERTICAL)
+        lMainSizer.add_item(@SBBitmap, :flag => Wx::GROW, :proportion => 1)
+        rPanel.sizer = lMainSizer
+
+        return rPanel
+      end
+
+      # Set the bitmap
+      #
+      # Parameters:
+      # * *iBitmap* (<em>Wx::Bitmap</em>): The bitmap
+      def setBitmap(iBitmap)
+        @SBBitmap.bitmap = iBitmap
+        self.fit
+      end
+
+    end
+
     # Initialize the GUI methods in the Kernel namespace
     def self.initializeGUI
       Object.module_eval('include RUtilAnts::GUI')
@@ -168,6 +345,38 @@ module RUtilAnts
       end
 
       return rReadBitmap, rReadError
+    end
+
+    # Setup a progress bar with some text in it and call code around it
+    #
+    # Parameters:
+    # * *iParentWindow* (<em>Wx::Window</em>): The parent window
+    # * *iCancellable* (_Boolean_): Is the progress cancellable ?
+    # * *iText* (_String_): The text to display
+    # * _CodeBlock_: The code called with the progress bar created:
+    # ** *ioProgressDlg* (<em>RUtilAnts::GUI::ProgressDialog</em>): The progress dialog
+    def setupTextProgress(iParentWindow, iCancellable, iText)
+      lProgressDlg = TextProgressDialog.new(iParentWindow, iCancellable, iText)
+      yield(lProgressDlg)
+      # TODO: Check if this is a good way to handle it
+      lProgressDlg.destroy
+    end
+
+    # Setup a progress bar with some bitmap in it and call code around it
+    #
+    # Parameters:
+    # * *iParentWindow* (<em>Wx::Window</em>): The parent window
+    # * *iCancellable* (_Boolean_): Is the progress cancellable ?
+    # * *iBitmap* (<em>Wx::Bitmap</em>): The bitmap to display
+    # * _CodeBlock_: The code called with the progress bar created:
+    # ** *ioProgressDlg* (<em>RUtilAnts::GUI::ProgressDialog</em>): The progress dialog
+    def setupBitmapProgress(iParentWindow, iCancellable, iBitmap)
+      lProgressDlg = BitmapProgressDialog.new(iParentWindow, iCancellable, iBitmap)
+      lProgressDlg.centre
+      lProgressDlg.show
+      yield(lProgressDlg)
+      # TODO: Check if this is a good way to handle it
+      lProgressDlg.destroy
     end
 
   end

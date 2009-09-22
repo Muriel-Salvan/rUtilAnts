@@ -86,9 +86,12 @@ module RUtilAnts
             if (rError == nil)
               # OK, register it
               @URLs[lURLHash] = [ lCurrentCRC, lObject ]
-            elsif (rError.is_a?(SocketError))
-              # We have a server down
-              @HostsDown[lServerID] = nil
+            else
+              if ((defined?(SocketError) != nil) and
+                  (rError.is_a?(SocketError)))
+                # We have a server down
+                @HostsDown[lServerID] = nil
+              end
             end
           end
           # If no error was found (errors can only happen if it was not already in the cache), take it from the cache
