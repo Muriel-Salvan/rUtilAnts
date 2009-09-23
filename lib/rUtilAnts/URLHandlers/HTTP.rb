@@ -109,10 +109,14 @@ module RUtilAnts
                   end
                 end
                 rContentFormat = CONTENT_REDIRECT
-              else
+              elsif (lResponse.is_a?(Net::HTTPOK))
                 # We have the web page
                 rContent = lResponse.body
                 rContentFormat = CONTENT_STRING
+              else
+                # An error occurred
+                rContent = RuntimeError.new("Access error to #{@URL}: #{lResponse.code}.")
+                rContentFormat = CONTENT_ERROR
               end
             end
           rescue Exception

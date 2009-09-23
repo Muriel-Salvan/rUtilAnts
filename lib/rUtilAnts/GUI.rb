@@ -409,9 +409,14 @@ module RUtilAnts
           else
             rBitmap = Wx::Bitmap.new(iRealFileName, iBitmapType)
           end
-          if ((rBitmap != nil) and
-              (rBitmap.is_ok))
-            break
+          if (rBitmap != nil)
+            if (rBitmap.is_ok)
+              break
+            else
+              # File seems to be corrupted
+              rError = RuntimeError.new("Bitmap #{iFileName} is corrupted.")
+              rBitmap = nil
+            end
           else
             rBitmap = nil
           end
