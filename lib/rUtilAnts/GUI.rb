@@ -308,6 +308,75 @@ module RUtilAnts
 
     end
 
+    # Manager that handles normal Wx::Timer, integrating a mechanism that can kill it and wait until it has been safely killed.
+    # Very handy for timers processing data that might be destroyed.
+    # To be used with safeTimerAfter and safeTimerEvery.
+    class SafeTimersManager
+      
+      # Constructor
+      def initialize
+        # List of registered timers
+        # list< Wx::Timer >
+        @Timers = []
+      end
+
+      # Register a given timer
+      #
+      # Parameters:
+      # * *iTimer* (<em>Wx::Timer</em>): The timer to register
+      def registerTimer(iTimer)
+        @Timers << iTimer
+      end
+
+      # Unregister a given timer
+      #
+      # Parameters:
+      # * *iTimer* (<em>Wx::Timer</em>): The timer to unregister
+      # Return:
+      # * _Boolean_: Was the Timer registered ?
+      def unregisterTimer(iTimer)
+        rFound = false
+
+        @Timers.delete_if do |iRegisteredTimer|
+          if (iRegisteredTimer == iTimer)
+            rFound = true
+            next true
+          else
+            next false
+          end
+        end
+
+        return rFound
+      end
+
+      # Kill all registered Timers and wait for their completion.
+      # Does not return unless they are stopped.
+      def killTimers
+        # Notify each Timer that it has to stop
+        @Timers.each do |ioTimer|
+          ioTimer.stop
+        end
+        # Wait for each one to be stopped
+        lTimersToStop = []
+        # Try first time, to not enter the loop if they were already stopped
+        @Timers.each do |iTimer|
+          if (iTimer.is_running)
+            lTimersToStop << iTimer
+          end
+        end
+        while (!lTimersToStop.empty?)
+          lTimersToStop.delete_if do |iTimer|
+            next (!iTimer.is_running)
+          end
+          # Give time to the application to effectively stop its timers
+          Wx.get_app.yield
+          # Little sleep
+          sleep(0.1)
+        end
+      end
+
+    end
+
     # Initialize the GUI methods in the Kernel namespace
     def self.initializeGUI
       Object.module_eval('include RUtilAnts::GUI')
@@ -460,6 +529,37 @@ module RUtilAnts
       showModal(BitmapProgressDialog, iParentWindow, iCodeToExecute, iBitmap, iParameters) do |iModalResult, iDialog|
         # Nothing to do
       end
+    end
+
+    # Execute some code after some elapsed time.
+    #
+    # Parameters:
+    # * *ioSafeTimersManager* (_SafeTimersManager_): The manager that handles this SafeTimer
+    # * *iElapsedTime* (_Integer_): The elapsed time to wait before running the code
+    # * _CodeBlock_: The code to execute
+    def safeTimerAfter(ioSafeTimersManager, iElapsedTime)
+      # Create the Timer and register it
+      lTimer = nil
+      lTimer = Wx::Timer.after(iElapsedTime) do
+        yield
+        # Now the Timer can be safely destroyed.
+        ioSafeTimersManager.unregisterTimer(lTimer)
+      end
+      ioSafeTimersManager.registerTimer(lTimer)
+    end
+
+    # Execute some code every some elapsed time.
+    #
+    # Parameters:
+    # * *ioSafeTimersManager* (_SafeTimersManager_): The manager that handles this SafeTimer
+    # * *iElapsedTime* (_Integer_): The elapsed time to wait before running the code
+    # * _CodeBlock_: The code to execute
+    def safeTimerEvery(ioSafeTimersManager, iElapsedTime)
+      # Create the Timer and register it
+      lTimer = Wx::Timer.every(iElapsedTime) do
+        yield
+      end
+      ioSafeTimersManager.registerTimer(lTimer)
     end
 
   end
