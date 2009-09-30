@@ -415,11 +415,12 @@ module RUtilAnts
       lDialog.centre(Wx::CENTRE_ON_SCREEN|Wx::BOTH)
       lModalResult = lDialog.show_modal
       yield(lModalResult, lDialog)
-      # If we destroy the window, we get SegFaults during execution when mouse hovers some toolbar icons and moves (except if we disable GC: in this case it works perfectly fine, but consumes tons of memory).
-      # If we don't destroy, we get ObjectPreviouslyDeleted exceptions on exit.
-      # So the least harmful is to destroy it without GC.
-      # TODO: Find a good solution
-      lDialog.destroy
+      # If we destroy windows having parents, we get SegFaults during execution when mouse hovers some toolbar icons and moves (except if we disable GC: in this case it works perfectly fine, but consumes tons of memory).
+      # If we don't destroy, we got ObjectPreviouslyDeleted exceptions on exit with wxRuby 2.0.0 (seems to have disappeared in 2.0.1).
+      # Don't destroy windows that will be destroyed by their parent's destruction
+      if (iParentWindow == nil)
+        lDialog.destroy
+      end
     end
 
     # Get a bitmap/icon from a URL.
