@@ -427,7 +427,9 @@ module RUtilAnts
       # If we destroy windows having parents, we get SegFaults during execution when mouse hovers some toolbar icons and moves (except if we disable GC: in this case it works perfectly fine, but consumes tons of memory).
       # If we don't destroy, we got ObjectPreviouslyDeleted exceptions on exit with wxRuby 2.0.0 (seems to have disappeared in 2.0.1).
       # TODO (wxRuby): Correct bug on Tray before enabling GC and find the good solution for modal destruction.
-      #lDialog.destroy
+      if (lParentWindow == nil)
+        lDialog.destroy
+      end
     end
 
     # Get a bitmap/icon from a URL.
