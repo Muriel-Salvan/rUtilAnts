@@ -415,6 +415,7 @@ module RUtilAnts
       # * If we destroy the window after show_modal, random core dumps occur in the application
       # * If not, the application can't exit normally
       # Therefore, in case of nil, we assign the top window as the parent.
+      # Sometimes, there is no top_window. So we'll stick with nil.
       lParentWindow = iParentWindow
       if (lParentWindow == nil)
         lParentWindow = Wx.get_app.get_top_window
@@ -425,10 +426,8 @@ module RUtilAnts
       yield(lModalResult, lDialog)
       # If we destroy windows having parents, we get SegFaults during execution when mouse hovers some toolbar icons and moves (except if we disable GC: in this case it works perfectly fine, but consumes tons of memory).
       # If we don't destroy, we got ObjectPreviouslyDeleted exceptions on exit with wxRuby 2.0.0 (seems to have disappeared in 2.0.1).
-      # Don't destroy windows that will be destroyed by their parent's destruction
-      #if (iParentWindow == nil)
-      #  lDialog.destroy
-      #end
+      # TODO (wxRuby): Correct bug on Tray before enabling GC and find the good solution for modal destruction.
+      #lDialog.destroy
     end
 
     # Get a bitmap/icon from a URL.
