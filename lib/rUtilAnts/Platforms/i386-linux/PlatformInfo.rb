@@ -71,7 +71,14 @@ module RUtilAnts
       # * *iMsg* (_String_): The message to display
       def sendMsg(iMsg)
         # TODO: Handle case of xmessage not installed
-        system("xmessage \"#{iMsg}\"")
+        # Create a temporary file with the content to display
+        require 'tmpdir'
+        lTmpFileName = "#{Dir.tmpdir}/RUA_MSG"
+        File.open(lTmpFileName, 'w') do |oFile|
+          oFile.write(iMsg)
+        end
+        system("xmessage -file #{lTmpFileName}")
+        File.unlink(lTmpFileName)
       end
 
       # Execute a Shell command.

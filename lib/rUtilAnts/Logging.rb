@@ -142,8 +142,13 @@ Stack:
           logFile(lCompleteMsg)
         end
         # Display Bug dialog
-        # Call it only if showModal exists
-        if (defined?(showModal) == nil)
+        if (showModalWxAvailable?)
+          # We require the file here, as we hope it will not be required often
+          require 'RUtilAnts/GUI/BugReportDialog'
+          showModal(GUI::BugReportDialog, nil, lCompleteMsg, @BugTrackerURL) do |iModalResult, iDialog|
+            # Nothing to do
+          end
+        else
           # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
           if (defined?($rUtilAnts_Platform_Info) != nil)
             $rUtilAnts_Platform_Info.sendMsg("A bug has just occurred.
@@ -157,12 +162,6 @@ Thanks.
 Details:
 #{lCompleteMsg}
 ")
-          end
-        else
-          # We require the file here, as we hope it will not be required often
-          require 'RUtilAnts/GUI/BugReportDialog'
-          showModal(GUI::BugReportDialog, nil, lCompleteMsg, @BugTrackerURL) do |iModalResult, iDialog|
-            # Nothing to do
           end
         end
       end

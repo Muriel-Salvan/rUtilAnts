@@ -134,8 +134,8 @@ module RUtilAnts
           if (!lExecCompleted)
             lExecCompleted = true
             @CodeToExecute.call(self)
-            self.end_modal(Wx::ID_OK)
           end
+          self.end_modal(Wx::ID_OK)
         end
 
         # By default, consider that we don't know the range of progression
