@@ -1,5 +1,74 @@
 = rUtilAnts Release History
 
+== 0.1.0.20091014 (Alpha)
+
+=== All modules
+
+* Refactored requires for gain in startup performances.
+* Removed .rb suffixes in required files (better migration to .so if needed)
+* Renamed $CT_* variables into $rUtilAnts_*
+
+=== GUI module
+
+* Modal windows having no parent get the top window as parent if possible.
+* Don't destroy modal windows having parents anymore, as it causes core dumps for applications using GarbageCollector.
+* Added SafeTimers and the corresponding API and Manager.
+* Give better errors in case of corrupted Bitmap files
+* Progress dialogs now use a correct modal behaviour.
+* Changed Progress Dialog API to generic parameters.
+* Progress dialog now respond to events and can be cancelled.
+* Added ProgressBars functionnality (both text and bitmap)
+* Forgot to remove some debugging traces.
+* Bug correction: On Linux, first call to end_modal did not close ProgressDialogs during the on_idle event.
+* Bug correction: Forgot to destroy orphan windows.
+* Bug correction: When dialogs with no parent were used, random crashes occured on the application
+* Bug correction: Corrected wrong placement of panels in progress dialogs.
+* Bug correction: Some favicons were not retrieved correctly when URLs were having suffices.
+* Bug correction: getBitmapFromURL was missing some extensions.
+
+=== Logging module
+
+* Added a way to specify the log file in Logging module.
+* Bug correction: logBug did not check availability of showModal correctly.
+
+=== Misc module
+
+* ZLib is tried in the default application local download paths if not already present.
+* extractZipFile returns a complete error instead of boolean.
+* Fixed typo in the rubyzip dependency.
+* extractZipFile overwrites already existing files instead of failing.
+* extractZipFile checks for its dependencies using RDI.
+
+=== Platform module
+
+* Prohibited filenames for Linux platform completed.
+* Bug correction: On Linux, sending messages using xmessage did not work for complex strings.
+
+=== Plugins module
+
+* getPluginInstance and accessPlugin can take a new parameter (RDIContextModifiers) to store applied context modifiers in case of installed dependencies.
+* Added more precisions in error encountered.
+* Added more precise exception classes
+* getPluginInstance returns errors instead of displaying them using logErr
+* Added some metadata to plugins' description (plugin and category names).
+* Added the possibility for descriptions to precise :Enabled property.
+* Changed some signatures to be more generic.
+* Added the possibility to include disabled plugins in lists.
+* Added getPluginsDescriptions in the API
+* Documented description's symbols used by rUtilAnts.
+* Added a way to get RDI Installer's main instance for dependencies insurance.
+* Bug correction: accessPlugin did not give Parameters correctly to getPluginInstance.
+* Bug correction: When asking for Plugins needing no dependency to be installed, getPluginInstance rejected plugins that have dependencies all resolved.
+
+=== URLAccess module
+
+* HTTP: Check for HTTP errors before giving content.
+* Bug correction: Missing RedirectionError excpetion declaration.
+
+=== URLCache module
+
+* Bug correction: When net library was not required, ending a Bitmap in error issued a bug.
+
 == 0.0.1.20090910 (Alpha)
 
 * Initial public release
