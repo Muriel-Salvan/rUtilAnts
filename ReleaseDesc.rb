@@ -8,6 +8,7 @@
   :Author => 'Muriel Salvan',
   :EMail => 'murielsalvan@users.sourceforge.net',
   :AuthorURL => 'http://murielsalvan.users.sourceforge.net',
+  :SFLogin => 'murielsalvan',
 
   # Project information
   :Name => 'rUtilAnts',
@@ -22,6 +23,7 @@
   :DevStatus => 'Alpha',
 
   # Gem information
+  :GemName => 'rUtilAnts',
   :GemPlatformClassName => 'Gem::Platform::RUBY',
   :Files => Dir.glob('{lib}/**/*').delete_if do |iFileName|
     ((iFileName == 'CVS') or
