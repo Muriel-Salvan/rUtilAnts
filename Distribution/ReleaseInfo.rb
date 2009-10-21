@@ -20,7 +20,7 @@ $ReleaseInfo = RubyPackager::ReleaseInfo.new.
     :DevStatus => 'Alpha'
   ).
   addCoreFiles( [
-    '{lib}/**/*'
+    'lib/**/*'
   ] ).
   addAdditionalFiles( [
     'README',
