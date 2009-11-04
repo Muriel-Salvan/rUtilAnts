@@ -20,17 +20,18 @@ module RUtilAnts
       # Parameters:
       # * *iLibRootDir* (_String_): The library root directory that will not appear in the logged stack messages
       # * *iBugTrackerURL* (_String_): The application's bug tracker URL, used to report bugs
-      # * *iSilentOutputs* (_Boolean_): Do we silent outputs (nothing sent to $stdout or $stderr) ? [optional = false]
-      def initialize(iLibRootDir, iBugTrackerURL, iSilentOutputs = false)
+      # * *iSilentSTDOut* (_Boolean_): Do we silent normal output (nothing sent to $stdout) ? [optional = false]
+      # * *iSilentSTDErr* (_Boolean_): Do we silent error output (nothing sent to $stderr) ? [optional = false]
+      def initialize(iLibRootDir, iBugTrackerURL, iSilentSTDOut = false, iSilentSTDErr = false)
         @LibRootDir, @BugTrackerURL = iLibRootDir, iBugTrackerURL
         @DebugMode = false
         @LogFile = nil
         @ErrorsStack = nil
         @MessagesStack = nil
         @DialogsGUI = nil
-        @ScreenOutput = (!iSilentOutputs)
-        @ScreenOutputErr = (!iSilentOutputs)
-        if (!iSilentOutputs)
+        @ScreenOutput = (!iSilentSTDOut)
+        @ScreenOutputErr = (!iSilentSTDErr)
+        if (!@ScreenOutput)
           # Test if we can write to stdout
           begin
             $stdout << "Launch Logging - stdout\n"
@@ -45,6 +46,8 @@ module RUtilAnts
               @ScreenOutput = false
             end
           end
+        end
+        if (!@ScreenOutputErr)
           # Test if we can write to stderr
           begin
             $stderr << "Launch Logging - stderr\n"
