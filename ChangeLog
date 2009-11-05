@@ -1,5 +1,10 @@
 = rUtilAnts Release History
 
+== 0.1.1.20091105 (Alpha)
+
+* Added possibility to mute stdout without muting stderr during initialization.
+* Adapted to last version of RubyPackager.
+
 == 0.1.0.20091014 (Alpha)
 
 === All modules
