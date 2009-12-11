@@ -64,11 +64,12 @@ module RUtilAnts
       # Parameters:
       # * *iMsg* (_String_): The message to display
       def sendMsg(iMsg)
-        # !!! iMsg must not be longer than 256 characters
-        if (iMsg.size > 256)
-          system("msg \"#{ENV['USERNAME']}\" /W #{iMsg[0..255]}")
+        # iMsg must not be longer than 255 characters
+        # \n must be escaped.
+        if (iMsg.size > 255)
+          system("msg \"#{ENV['USERNAME']}\" /W \"#{iMsg[0..254]}\"")
         else
-          system("msg \"#{ENV['USERNAME']}\" /W #{iMsg}")
+          system("msg \"#{ENV['USERNAME']}\" /W \"#{iMsg}\"")
         end
       end
 

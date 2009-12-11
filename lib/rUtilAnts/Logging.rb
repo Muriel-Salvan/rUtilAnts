@@ -73,6 +73,14 @@ module RUtilAnts
         @LogFile = iFileName
       end
 
+      # Get the log file used (can be nil)
+      #
+      # Return:
+      # * _String_: Log file name (can be nil)
+      def getLogFile
+        return @LogFile
+      end
+
       # Indicate which GUI to be used to display dialogs.
       #
       # Parameters:
@@ -175,12 +183,13 @@ Details:
       # Parameters:
       # * *iMsg* (_String_): Message to log
       def logErr(iMsg)
+        lMsg = "!!! ERR !!! #{iMsg}"
         # Log into stderr
         if (@ScreenOutputErr)
-          $stderr << "!!! ERR !!! #{iMsg}\n"
+          $stderr << "#{lMsg}\n"
         end
         if (@LogFile != nil)
-          logFile(iMsg)
+          logFile(lMsg)
         end
         # Display dialog only if we are not redirecting messages to a stack
         if (@ErrorsStack == nil)
@@ -249,6 +258,22 @@ Details:
         end
       end
 
+      # Log a warning.
+      # Warnings are not errors but still should be highlighted.
+      #
+      # Parameters:
+      # * *iMsg* (_String_): Message to log
+      def logWarn(iMsg)
+        # Log into stdout
+        lMsg = "!!! WARNING !!! - #{iMsg}"
+        if (@ScreenOutput)
+          $stdout << "#{lMsg}\n"
+        end
+        if (@LogFile != nil)
+          logFile(lMsg)
+        end
+      end
+
       # Log a debugging info.
       # This is used when debug is activated
       #
@@ -292,36 +317,38 @@ Details:
       # Remove @LibRootDir paths from it.
       #
       # Parameters:
-      # * *iCaller* (<em>list<String></em>): The caller
+      # * *iCaller* (<em>list<String></em>): The caller, or nil if no caller
       # * *iReferenceCaller* (<em>list<String></em>): The reference caller: we will not display lines from iCaller that also belong to iReferenceCaller [optional = nil]
       # Return:
       # * <em>list<String></em>): The simple stack
       def getSimpleCaller(iCaller, iReferenceCaller = nil)
         rSimpleCaller = []
 
-        lCaller = nil
-        # If there is a reference caller, remove the lines from lCaller that are also in iReferenceCaller
-        if (iReferenceCaller == nil)
-          lCaller = iCaller
-        else
-          lIdxCaller = iCaller.size - 1
-          lIdxRef = iReferenceCaller.size - 1
-          while ((lIdxCaller >= 0) and
-                 (lIdxRef >= 0) and
-                 (iCaller[lIdxCaller] == iReferenceCaller[lIdxRef]))
-            lIdxCaller -= 1
-            lIdxRef -= 1
-          end
-          # Here we have either one of the indexes that is -1, or the indexes point to different lines between the caller and its reference.
-          lCaller = iCaller[0..lIdxCaller+1]
-        end
-        lCaller.each do |iCallerLine|
-          lMatch = iCallerLine.match(/^(.*):([[:digit:]]*):in (.*)$/)
-          if (lMatch == nil)
-            # Did not get which format. Just add it blindly.
-            rSimpleCaller << iCallerLine
+        if (iCaller != nil)
+          lCaller = nil
+          # If there is a reference caller, remove the lines from lCaller that are also in iReferenceCaller
+          if (iReferenceCaller == nil)
+            lCaller = iCaller
           else
-            rSimpleCaller << "#{File.expand_path(lMatch[1]).gsub(@LibRootDir, '')}:#{lMatch[2]}:in #{lMatch[3]}"
+            lIdxCaller = iCaller.size - 1
+            lIdxRef = iReferenceCaller.size - 1
+            while ((lIdxCaller >= 0) and
+                   (lIdxRef >= 0) and
+                   (iCaller[lIdxCaller] == iReferenceCaller[lIdxRef]))
+              lIdxCaller -= 1
+              lIdxRef -= 1
+            end
+            # Here we have either one of the indexes that is -1, or the indexes point to different lines between the caller and its reference.
+            lCaller = iCaller[0..lIdxCaller+1]
+          end
+          lCaller.each do |iCallerLine|
+            lMatch = iCallerLine.match(/^(.*):([[:digit:]]*):in (.*)$/)
+            if (lMatch == nil)
+              # Did not get which format. Just add it blindly.
+              rSimpleCaller << iCallerLine
+            else
+              rSimpleCaller << "#{File.expand_path(lMatch[1]).gsub(@LibRootDir, '')}:#{lMatch[2]}:in #{lMatch[3]}"
+            end
           end
         end
 
@@ -350,6 +377,14 @@ Details:
     # * *iFileName* (_String_): Log file name (can be nil)
     def setLogFile(iFileName)
       $rUtilAnts_Logging_Logger.setLogFile(iFileName)
+    end
+
+    # Get the log file used (can be nil)
+    #
+    # Return:
+    # * _String_: Log file name (can be nil)
+    def getLogFile
+      return $rUtilAnts_Logging_Logger.getLogFile
     end
 
     # Indicate which GUI to be used to display dialogs.
@@ -432,6 +467,15 @@ Details:
     # * *iMsg* (_String_): Message to log
     def logInfo(iMsg)
       $rUtilAnts_Logging_Logger.logInfo(iMsg)
+    end
+
+    # Log a warning.
+    # Warnings are not errors but still should be highlighted.
+    #
+    # Parameters:
+    # * *iMsg* (_String_): Message to log
+    def logWarn(iMsg)
+      $rUtilAnts_Logging_Logger.logWarn(iMsg)
     end
 
     # Log a debugging info.
