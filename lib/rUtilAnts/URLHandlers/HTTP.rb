@@ -62,18 +62,8 @@ module RUtilAnts
         # Return:
         # * _String_: The file name
         def getCorrespondingFileBaseName
-          lBase = File.basename(@URLPath)
-          lExt = File.extname(@URLPath)
-          lFileName = nil
-          if (lExt.empty?)
-            lFileName = lBase
-          else
-            # Check that extension has no characters following the URL (#, ? and ;)
-            lBase = lBase[0..lBase.size-lExt.size-1]
-            lFileName = "#{lBase}#{lExt.gsub(/^([^#\?;]*).*$/,'\1')}"
-          end
-
-          return getValidFileName(lFileName)
+          # Check that extension has no characters following the URL (#, ? and ;)
+          return getValidFileName(File.basename(@URLPath.gsub(/^([^#\?;]*).*$/,'\1')))
         end
 
         # Get the content of the URL
