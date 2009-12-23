@@ -94,11 +94,13 @@ module RUtilAnts
       # Parameters:
       # * *iDebugMode* (_Boolean_): Are we in debug mode ?
       def activateLogDebug(iDebugMode)
-        @DebugMode = iDebugMode
-        if (iDebugMode)
-          logInfo 'Activated log debug'
-        else
-          logInfo 'Deactivated log debug'
+        if (@DebugMode != iDebugMode)
+          @DebugMode = iDebugMode
+          if (iDebugMode)
+            logInfo 'Activated log debug'
+          else
+            logInfo 'Deactivated log debug'
+          end
         end
       end
 
