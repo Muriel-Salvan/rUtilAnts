@@ -104,6 +104,14 @@ module RUtilAnts
         end
       end
 
+      # Is debug mode activated ?
+      #
+      # Return:
+      # * _Boolean_: Are we in debug mode ?
+      def debugActivated?
+        return @DebugMode
+      end
+
       # Set the stack of the errors to fill.
       # If set to nil, errors will be displayed as they appear.
       # If set to a stack, errors will silently be added to the list.
@@ -403,6 +411,14 @@ Details:
     # * *iDebugMode* (_Boolean_): Are we in debug mode ?
     def activateLogDebug(iDebugMode)
       $rUtilAnts_Logging_Logger.activateLogDebug(iDebugMode)
+    end
+
+    # Is debug mode activated ?
+    #
+    # Return:
+    # * _Boolean_: Are we in debug mode ?
+    def debugActivated?
+      return $rUtilAnts_Logging_Logger.debugActivated?
     end
 
     # Set the stack of the errors to fill.
