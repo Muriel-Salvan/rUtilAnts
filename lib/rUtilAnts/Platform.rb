@@ -17,6 +17,10 @@ module RUtilAnts
       begin
         require "RUtilAnts/Platforms/#{RUBY_PLATFORM}/PlatformInfo"
       rescue Exception
+        if (!defined?(logBug))
+          require 'rUtilAnts/Logging'
+          RUtilAnts::Logging::initializeLogging(File.expand_path(File.dirname(__FILE__)), '')
+        end
         logBug "Current platform #{RUBY_PLATFORM} is not supported."
         raise RuntimeError, "Current platform #{RUBY_PLATFORM} is not supported."
       end
