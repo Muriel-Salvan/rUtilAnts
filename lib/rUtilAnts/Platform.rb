@@ -15,14 +15,14 @@ module RUtilAnts
     def self.initializePlatform
       # Require the platform info
       begin
-        require "RUtilAnts/Platforms/#{RUBY_PLATFORM}/PlatformInfo"
+        require "rUtilAnts/Platforms/#{RUBY_PLATFORM}/PlatformInfo"
       rescue Exception
         if (!defined?(logBug))
           require 'rUtilAnts/Logging'
           RUtilAnts::Logging::initializeLogging(File.expand_path(File.dirname(__FILE__)), '')
         end
-        logBug "Current platform #{RUBY_PLATFORM} is not supported."
-        raise RuntimeError, "Current platform #{RUBY_PLATFORM} is not supported."
+        logBug "Current platform #{RUBY_PLATFORM} is not supported (#{$!})."
+        raise RuntimeError, "Current platform #{RUBY_PLATFORM} is not supported (#{$!})."
       end
       # Create the corresponding object
       $rUtilAnts_Platform_Info = PlatformInfo.new
