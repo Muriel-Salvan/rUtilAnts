@@ -81,6 +81,22 @@ module RUtilAnts
         return @LogFile
       end
 
+      # Get the library root dir
+      #
+      # Return:
+      # * _String_: The library root dir, as defined when initialized
+      def getLibRootDir
+        return @LibRootDir
+      end
+
+      # Get the bug tracker URL
+      #
+      # Return:
+      # * _String_: The bug tracker URL, as defined when initialized
+      def getBugTrackerURL
+        return @BugTrackerURL
+      end
+
       # Indicate which GUI to be used to display dialogs.
       #
       # Parameters:
@@ -377,7 +393,7 @@ Details:
     # * *iSilentOutputs* (_Boolean_): Do we silent outputs (nothing sent to $stdout or $stderr) ? [optional = false]
     def self.initializeLogging(iLibRootDir, iBugTrackerURL, iSilentOutputs = false)
       $rUtilAnts_Logging_Logger = RUtilAnts::Logging::Logger.new(iLibRootDir, iBugTrackerURL, iSilentOutputs)
-      # Add the module accessible from the Kernel
+      # Add the module accessible from the Object namespace
       Object.module_eval('include RUtilAnts::Logging')
     end
 
@@ -395,6 +411,22 @@ Details:
     # * _String_: Log file name (can be nil)
     def getLogFile
       return $rUtilAnts_Logging_Logger.getLogFile
+    end
+
+    # Get the library root dir
+    #
+    # Return:
+    # * _String_: The library root dir, as defined when initialized
+    def getLibRootDir
+      return $rUtilAnts_Logging_Logger.getLibRootDir
+    end
+
+    # Get the bug tracker URL
+    #
+    # Return:
+    # * _String_: The bug tracker URL, as defined when initialized
+    def getBugTrackerURL
+      return $rUtilAnts_Logging_Logger.getBugTrackerURL
     end
 
     # Indicate which GUI to be used to display dialogs.

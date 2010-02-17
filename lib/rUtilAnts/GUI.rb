@@ -377,7 +377,7 @@ module RUtilAnts
 
     end
 
-    # Initialize the GUI methods in the Kernel namespace
+    # Initialize the GUI methods in the Object namespace
     def self.initializeGUI
       Object.module_eval('include RUtilAnts::GUI')
     end

@@ -7,7 +7,7 @@ module RUtilAnts
 
   module Misc
 
-    # Set these methods into the Kernel namespace
+    # Set these methods into the Object namespace
     def self.initializeMisc
       Object.module_eval('include RUtilAnts::Misc')
     end
