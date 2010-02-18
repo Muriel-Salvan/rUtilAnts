@@ -170,13 +170,17 @@ RUtilAnts::ForeignProcess::executeEmbeddedFunction(ARGV[0], ARGV[1])
       rescue Exception
         lResult = RuntimeError.new("Error occurred while executing foreign call: #{$!}. Backtrace: #{$!.join("\n")}")
       end
-      # Store the result in the file for return
-      File.open(iResultFileName, 'w') do |oFile|
-        oFile.write(Marshal.dump(lResult))
+      begin
+        # Store the result in the file for return
+        File.open(iResultFileName, 'w') do |oFile|
+          oFile.write(Marshal.dump(lResult))
+        end
+        # For security reasons, ensure that only us can read this file. It can contain passwords.
+        require 'fileutils'
+        FileUtils.chmod(0700, iResultFileName)
+      rescue Exception
+        logErr "Error while writing result in to #{iResultFileName}: #{$!}."
       end
-      # For security reasons, ensure that only us can read this file. It can contain passwords.
-      require 'fileutils'
-      FileUtils.chmod(0700, iResultFileName)
     end
 
     # Initialize the ForeignProcess methods in the Object namespace
