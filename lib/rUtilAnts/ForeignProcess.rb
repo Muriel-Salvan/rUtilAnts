@@ -78,7 +78,13 @@ module RUtilAnts
         lInfo.LogFile = getLogFile
         lInfo.LibRootDir = getLibRootDir
         lInfo.BugTrackerURL = getBugTrackerURL
-        lInfo.RequireFiles = $".clone
+        lInfo.RequireFiles = []
+        # Do not store ForeignProcess require
+        $".each do |iRequireName|
+          if (iRequireName.match(/ForeignProcess/) == nil)
+            lInfo.RequireFiles << iRequireName
+          end
+        end
         lInfo.LoadPath = $LOAD_PATH.clone
         lMethodDetails = MethodCallInfo::MethodDetails.new
         lMethodDetails.Parameters = iParameters
@@ -173,7 +179,7 @@ RUtilAnts::ForeignProcess::executeEmbeddedFunction(ARGV[0], ARGV[1])
         lResult = lMethodDetails.Object.send(lMethodDetails.Method, *lMethodDetails.Parameters)
         logDebug "Method returned #{lResult}."
       rescue Exception
-        lResult = RuntimeError.new("Error occurred while executing foreign call: #{$!}. Backtrace: #{$!.join("\n")}")
+        lResult = RuntimeError.new("Error occurred while executing foreign call: #{$!}. Backtrace: #{$!.backtrace.join("\n")}")
       end
       begin
         # Store the result in the file for return
