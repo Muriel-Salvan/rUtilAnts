@@ -18,7 +18,7 @@ module RUtilAnts
 
       # Lib root dir
       #   String
-      attr_accessor :LibrootDir
+      attr_accessor :LibRootDir
 
       # Bug tracker URL
       #   String
@@ -43,9 +43,9 @@ module RUtilAnts
         #   Object
         attr_accessor :Object
 
-        # Function name to call
-        #   String
-        attr_accessor :FunctionName
+        # Method to call
+        #   Symbol
+        attr_accessor :Method
 
         # Parameters
         #   list<Object>
@@ -60,16 +60,16 @@ module RUtilAnts
     # Parameters:
     # * *iShellCmd* (_String_): Shell command to invoke before Ruby
     # * *iObject* (_Object_): Object that will have a function to call in the new session
-    # * *iFunctionName* (_String_): Function name to call on the object
+    # * *iMethod* (_Symbol_): Method to call on the object
     # * *Parameters* (<em>list<Object></em>): Remaining parameters
     # Return:
     # * _Exception_: An error, or nil if success
     # * _Object_: The result of the function call (valid only if no error returned)
-    def execCmdOtherSession(iShellCmd, iObject, iFunctionName, iParameters)
+    def self.execCmdOtherSession(iShellCmd, iObject, iMethod, iParameters)
       rError = nil
       rResult = nil
 
-      logDebug "Execute method #{iFunctionName}(#{iParameters.join(', ')}) in a new process with shell command: #{iShellCmd} ..."
+      logDebug "Execute method #{iMethod}(#{iParameters.join(', ')}) in a new process with shell command: #{iShellCmd} ..."
 
       # Create an object that we will serialize, containing all needed information for the session
       lInfo = MethodCallInfo.new
@@ -80,8 +80,9 @@ module RUtilAnts
       lInfo.LoadPath = $LOAD_PATH.clone
       lMethodDetails = MethodCallInfo::MethodDetails.new
       lMethodDetails.Parameters = iParameters
-      lMethodDetails.FunctionName = iFunctionName
+      lMethodDetails.Method = iMethod
       lMethodDetails.Object = iObject
+      logDebug "Method to be marshalled: #{lMethodDetails.inspect}"
       lInfo.SerializedMethodDetails = Marshal.dump(lMethodDetails)
       # Dump this object in a temporary file
       require 'tmpdir'
@@ -161,7 +162,7 @@ RUtilAnts::ForeignProces::executeEmbeddedFunction(ARGV[0], ARGV[1])
         # Unserialize the method details
         lMethodDetails = Marshal.load(lInfo.SerializedMethodDetails)
         # Call the method on the object with all its parameters
-        lResult = eval("lMethodDetails.Object.#{lMethodDetails.FunctionName}(*lMethodDetails.Parameters)")
+        lResult = lMethodDetails.Object.send(lMethodDetails.Method, *lMethodDetails.Parameters)
       rescue Exception
         lResult = RuntimeError.new("Error occurred while preparing execution of foreign call: #{$!}. Backtrace: #{$!.join("\n")}")
       end
