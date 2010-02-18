@@ -69,6 +69,8 @@ module RUtilAnts
       rError = nil
       rResult = nil
 
+      logDebug "Execute method #{iFunctionName}(#{iParameters.join(', ')}) in a new process with shell command: #{iShellCmd} ..."
+
       # Create an object that we will serialize, containing all needed information for the session
       lInfo = MethodCallInfo.new
       lInfo.LogFile = getLogFile
@@ -123,6 +125,8 @@ RUtilAnts::ForeignProces::executeEmbeddedFunction(ARGV[0], ARGV[1])
       File.unlink(lExecFileName)
       File.unlink(lResultFileName)
 
+      logDebug "Method executed with error #{rError} and result #{rResult}."
+
       return rError, rResult
     end
 
@@ -153,6 +157,7 @@ RUtilAnts::ForeignProces::executeEmbeddedFunction(ARGV[0], ARGV[1])
         # Initialize logging
         RUtilAnts::Logging::initializeLogging(lInfo.LibRootDir, lInfo.BugTrackerURL)
         setLogFile(lInfo.LogFile)
+        logDebug "New process spawned with requires: #{lInfo.RequireFiles.join(', ')}."
         # Unserialize the method details
         lMethodDetails = Marshal.load(lInfo.SerializedMethodDetails)
         # Call the method on the object with all its parameters
