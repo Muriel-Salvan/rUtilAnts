@@ -127,6 +127,24 @@ module RUtilAnts
       return rError
     end
 
+    # Execute a code block after having changed current directory.
+    # Ensure the directory will be changed back at the end of the block, even if exceptions are thrown.
+    #
+    # Parameters:
+    # * *iDir* (_String_): The directory to change into
+    # * *CodeBlock*: Code called once the current directory has been changed
+    def changeDir(iDir)
+      lOldDir = Dir.getwd
+      Dir.chdir(iDir)
+      begin
+        yield
+      rescue Exception
+        Dir.chdir(lOldDir)
+        raise
+      end
+      Dir.chdir(lOldDir)
+    end
+
   end
 
 end
