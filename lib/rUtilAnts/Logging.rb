@@ -181,7 +181,7 @@ Stack:
         # Display Bug dialog
         if (showModalWxAvailable?)
           # We require the file here, as we hope it will not be required often
-          require 'RUtilAnts/GUI/BugReportDialog'
+          require 'rUtilAnts/GUI/BugReportDialog'
           showModal(GUI::BugReportDialog, nil, lCompleteMsg, @BugTrackerURL) do |iModalResult, iDialog|
             # Nothing to do
           end
