@@ -92,9 +92,10 @@ module RUtilAnts
         lMethodDetails.Object = iObject
         logDebug "Method to be marshalled: #{lMethodDetails.inspect}"
         lInfo.SerializedMethodDetails = Marshal.dump(lMethodDetails)
+        lCurrentThread = Thread.current
         # Dump this object in a temporary file
         require 'tmpdir'
-        lInfoFileName = "#{Dir.tmpdir}/RubyExec_#{Thread.object_id}_Info"
+        lInfoFileName = "#{Dir.tmpdir}/RubyExec_#{lCurrentThread.object_id}_Info"
         File.open(lInfoFileName, 'w') do |oFile|
           oFile.write(Marshal.dump(lInfo))
         end
@@ -102,7 +103,7 @@ module RUtilAnts
         require 'fileutils'
         FileUtils.chmod(0700, lInfoFileName)
         # Generate the Ruby file that will run everything
-        lExecFileName = "#{Dir.tmpdir}/RubyExec_#{Thread.object_id}_Exec.rb"
+        lExecFileName = "#{Dir.tmpdir}/RubyExec_#{lCurrentThread.object_id}_Exec.rb"
         File.open(lExecFileName, 'w') do |oFile|
           oFile << "
 \# This is a generated file that should not stay persistent. You can delete it.
@@ -114,7 +115,7 @@ RUtilAnts::ForeignProcess::executeEmbeddedFunction(ARGV[0], ARGV[1])
         # For security reasons, ensure that only us can read and execute this file.
         FileUtils.chmod(0700, lExecFileName)
         # Name the file that will receive the result of the function call
-        lResultFileName = "#{Dir.tmpdir}/RubyExec_#{Thread.object_id}_Result"
+        lResultFileName = "#{Dir.tmpdir}/RubyExec_#{lCurrentThread.object_id}_Result"
 
         # Call this Ruby file by first executing the Shell command
         lCmd = "#{iShellCmd}; ruby -w #{lExecFileName} #{lInfoFileName} #{lResultFileName} 2>&1"
