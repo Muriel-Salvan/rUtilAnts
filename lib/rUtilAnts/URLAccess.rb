@@ -27,7 +27,7 @@ module RUtilAnts
         # map< String, [ list<Regexp>, String ] >
         # map< PluginName, [ List of matching regexps, Plugin class name ] >
         @Plugins = {}
-        Dir.glob("#{File.dirname(__FILE__)}/URLHandlers/*.rb").each do |iFileName|
+        Dir.glob(File.expand_path("#{File.dirname(__FILE__)}/URLHandlers/*.rb")).each do |iFileName|
           begin
             lPluginName = File.basename(iFileName)[0..-4]
             require "rUtilAnts/URLHandlers/#{lPluginName}"
