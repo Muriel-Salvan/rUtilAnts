@@ -85,7 +85,8 @@ module RUtilAnts
           begin
             require 'net/http'
             Net::HTTP.start(@URLServer) do |iHTTPConnection|
-              lResponse = iHTTPConnection.get("/#{@URLPath}")
+              # Some websites filter out the default user agent (commons.mediawiki.org for example). Set another one.
+              lResponse = iHTTPConnection.request_get("/#{@URLPath}", {'User-Agent' => 'RUtilAnts'})
               if ((iFollowRedirections) and
                   (lResponse.is_a?(Net::HTTPRedirection)))
                 # We access the file through a new URL

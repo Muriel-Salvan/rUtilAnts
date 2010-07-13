@@ -55,8 +55,10 @@ module RUtilAnts
       # * _CodeBlock_: The code returning the object corresponding to the content:
       # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
       # ** *iFileBaseName* (_String_): The base name the file could have. Useful to get file name extensions.
-      # ** Returns:
+      # ** Return:
       # ** _Exception_: The error encountered, or nil in case of success
+      # Return:
+      # * _Exception_: The error encountered, or nil in case of success
       def accessFile(iURL, iParameters = {})
         rError = nil
 
@@ -200,13 +202,15 @@ module RUtilAnts
     # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
     # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
     # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
-    # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
+    # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itself will be given the code block. [optional = false]
     # ** *:URLHandler* (_Object_): The URL handler, if it has already been instantiated, or nil otherwise [optional = nil]
     # * _CodeBlock_: The code returning the object corresponding to the content:
     # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
     # ** *iFileBaseName* (_String_): The base name the file could have. Useful to get file name extensions.
-    # ** Returns:
+    # ** Return:
     # ** _Exception_: The error encountered, or nil in case of success
+    # Return:
+    # * _Exception_: The error encountered, or nil in case of success
     def accessFile(iURL, iParameters = {})
       return $rUtilAnts_URLAccess_Manager.accessFile(iURL, iParameters) do |iContent, iBaseName|
         yield(iContent, iBaseName)
