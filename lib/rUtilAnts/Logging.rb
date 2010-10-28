@@ -65,6 +65,22 @@ module RUtilAnts
         end
       end
 
+      # Mute or unmute standard output
+      #
+      # Parameters:
+      # * *iMute* (_Boolean_): Do we mute standard output ? [optional = true]
+      def muteStdOut(iMute = true)
+        @ScreenOutput = (!iMute)
+      end
+
+      # Mute or unmute error output
+      #
+      # Parameters:
+      # * *iMute* (_Boolean_): Do we mute error output ? [optional = true]
+      def muteStdErr(iMute = true)
+        @ScreenOutputErr = (!iMute)
+      end
+
       # Set the log file to use (can be nil to stop logging into a file)
       #
       # Parameters:
@@ -395,6 +411,22 @@ Details:
       $rUtilAnts_Logging_Logger = RUtilAnts::Logging::Logger.new(iLibRootDir, iBugTrackerURL, iSilentOutputs)
       # Add the module accessible from the Object namespace
       Object.module_eval('include RUtilAnts::Logging')
+    end
+
+    # Mute or unmute standard output
+    #
+    # Parameters:
+    # * *iMute* (_Boolean_): Do we mute standard output ? [optional = true]
+    def muteStdOut(iMute = true)
+      $rUtilAnts_Logging_Logger.muteStdOut(iMute)
+    end
+
+    # Mute or unmute error output
+    #
+    # Parameters:
+    # * *iMute* (_Boolean_): Do we mute error output ? [optional = true]
+    def muteStdErr(iMute = true)
+      $rUtilAnts_Logging_Logger.muteStdErr(iMute)
     end
 
     # Set the log file to use (can be nil to stop logging into a file)
