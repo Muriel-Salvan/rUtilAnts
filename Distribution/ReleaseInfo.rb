@@ -17,7 +17,7 @@ RubyPackager::ReleaseInfo.new.
     :ImageURL => 'http://rutilants.sourceforge.net/wiki/images/c/c9/Logo.png',
     :FaviconURL => 'http://rutilants.sourceforge.net/wiki/images/2/26/Favicon.png',
     :SVNBrowseURL => 'http://rutilants.svn.sourceforge.net/viewvc/rutilants/',
-    :DevStatus => 'Alpha'
+    :DevStatus => 'Beta'
   ).
   addCoreFiles( [
     'lib/**/*'
