@@ -15,7 +15,7 @@ module RUtilAnts
       # Return:
       # * _Integer_: OS ID
       def os
-        return OS_WINDOWS
+        return OS_CYGWIN
       end
 
       # Return the list of directories where we look for executables
@@ -23,7 +23,7 @@ module RUtilAnts
       # Return:
       # * <em>list<String></em>: List of directories
       def getSystemExePath
-        return ENV['PATH'].split(';')
+        return ENV['PATH'].split(':')
       end
 
       # Set the list of directories where we look for executables
@@ -31,7 +31,7 @@ module RUtilAnts
       # Parameters:
       # * *iNewDirsList* (<em>list<String></em>): List of directories
       def setSystemExePath(iNewDirsList)
-        ENV['PATH'] = iNewDirsList.join(';')
+        ENV['PATH'] = iNewDirsList.join(':')
       end
 
       # Return the list of file extensions that might be discretely happened to executable files.
@@ -40,13 +40,7 @@ module RUtilAnts
       # Return:
       # * <em>list<String></em>: List of extensions (including .)
       def getDiscreteExeExtensions
-        rExtList = []
-
-        ENV['PATHEXT'].split(';').each do |iExt|
-          rExtList << iExt.downcase
-        end
-
-        return rExtList
+        return []
       end
 
       # Return the list of directories where we look for libraries
@@ -54,7 +48,13 @@ module RUtilAnts
       # Return:
       # * <em>list<String></em>: List of directories
       def getSystemLibsPath
-        return ENV['PATH'].split(';')
+        rList = ENV['PATH'].split(':')
+
+        if (ENV['LD_LIBRARY_PATH'] != nil)
+          rList += ENV['LD_LIBRARY_PATH'].split(':')
+        end
+
+        return rList
       end
 
       # Set the list of directories where we look for libraries
@@ -62,7 +62,7 @@ module RUtilAnts
       # Parameters:
       # * *iNewDirsList* (<em>list<String></em>): List of directories
       def setSystemLibsPath(iNewDirsList)
-        ENV['PATH'] = iNewDirsList.join(';')
+        ENV['LD_LIBRARY_PATH'] = iNewDirsList.join(':')
       end
 
       # This method sends a message (platform dependent) to the user, without the use of wxruby
@@ -70,13 +70,15 @@ module RUtilAnts
       # Parameters:
       # * *iMsg* (_String_): The message to display
       def sendMsg(iMsg)
-        # iMsg must not be longer than 255 characters
-        # \n must be escaped.
-        if (iMsg.size > 255)
-          system("msg \"#{ENV['USERNAME']}\" /W \"#{iMsg[0..254]}\"")
-        else
-          system("msg \"#{ENV['USERNAME']}\" /W \"#{iMsg}\"")
+        # TODO: Handle case of xmessage not installed
+        # Create a temporary file with the content to display
+        require 'tmpdir'
+        lTmpFileName = "#{Dir.tmpdir}/RUA_MSG"
+        File.open(lTmpFileName, 'w') do |oFile|
+          oFile.write(iMsg)
         end
+        system("xmessage -file #{lTmpFileName}")
+        File.unlink(lTmpFileName)
       end
 
       # Execute a Shell command.
@@ -91,7 +93,8 @@ module RUtilAnts
         rException = nil
 
         if (iInTerminal)
-          if (!system("start cmd /c #{iCmd}"))
+          # TODO: Handle case of xterm not installed
+          if (!system("xterm -e \"#{iCmd}\""))
             rException = RuntimeError.new
           end
         else
@@ -114,12 +117,10 @@ module RUtilAnts
       def launchURL(iURL)
         rError = nil
 
-        # We must put " around the URL after the http:// prefix, as otherwise & symbol will not be recognized
-        lMatch = iURL.match(/^(http|https|ftp|ftps):\/\/(.*)$/)
-        if (lMatch == nil)
-          rError = "URL #{iURL} is not one of http://, https://, ftp:// or ftps://. Can't invoke it."
-        else
-          IO.popen("start #{lMatch[1]}://\"#{lMatch[2]}\"")
+        begin
+          IO.popen("xdg-open '#{iURL}'")
+        rescue Exception
+          rError = $!.to_s
         end
 
         return rError
@@ -130,7 +131,7 @@ module RUtilAnts
       # Return:
       # * <em>list<String></em>: List of extensions (including . character). It can be empty.
       def getExecutableExtensions
-        return [ '.exe', '.com', '.bat' ]
+        return []
       end
 
       # Get prohibited characters from file names
@@ -138,7 +139,7 @@ module RUtilAnts
       # Return:
       # * _String_: String of prohibited characters in file names
       def getProhibitedFileNamesCharacters
-        return '\\/:*?"<>|'
+        return '/'
       end
 
     end

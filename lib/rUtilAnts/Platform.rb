@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009-2010 Muriel Salvan (murielsalvan@users.sourceforge.net)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -10,6 +10,7 @@ module RUtilAnts
     # OS constants
     OS_WINDOWS = 0
     OS_LINUX = 1
+    OS_CYGWIN = 2
 
     # Initialize the platform info
     def self.initializePlatform

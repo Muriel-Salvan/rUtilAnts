@@ -1,5 +1,51 @@
 = rUtilAnts Release History
 
+== 0.2.1.20101110 (Beta)
+
+* Changed copyright mentions.
+* Platforms: Added i386-cygwin platform.
+
+== 0.2.0.20101109 (Beta)
+
+=== All modules
+
+* Changed DevStatus to Beta.
+* Corrected some typos when requiring rUtilAnts.
+* ForeignProcess: Implemented a way to run a method in an external process with Shell commands to execute before Ruby's invocation. Useful for LD_LIBRARY_PATH settings.
+
+=== Logging module
+
+* Added functions to mute/unmute StdOut/StdErr
+* Added API to access the initial parameters given when initializing the module.
+* Added possibility to know the status of the debug mode using debugActivated? method.
+* Don't log anymore if Debug logs are activated/deactivated when the status remains the same.
+* Added logWarn.
+* Added getLogFile.
+* Bug correction: When logExc or logBug were called in a context not having any caller, an error occurred.
+
+=== Misc module
+
+* Added changeDir method.
+
+=== Platforms module
+
+* Added x86_64-linux platform.
+* Better error display when Platforms can't be loaded.
+* Bug correction: Windows' discrete executable extensions were not correctly listed.
+* Bug correction: If the platform was not supported, logBug could not be called correctly.
+* Bug correction: Platforms were not loaded correctly on case-sensitive file systems.
+* Bug correction: sendMsg on Windows did not work correctly with \n and messages exzceding 255 characters.
+
+=== URLAccess module
+
+* Better comments.
+* HTTP requests use a different User-Agent.*
+* Bug correction: Since Ruby 1.8.6, it is needed to use File.expand_paht on Windows when mixing files separators.
+
+=== URLHandlers module
+
+* Bug correction: HTTP file names could be invalid.
+
 == 0.1.1.20091105 (Alpha)
 
 * Added possibility to mute stdout without muting stderr during initialization.
