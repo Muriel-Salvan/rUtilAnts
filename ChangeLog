@@ -1,5 +1,10 @@
 = rUtilAnts Release History
 
+== 0.2.2.20101125 (Beta)
+
+* Archive: Implemented a new module that provides archiving strings, objects and files with compression and encryption
+* Platforms: Added support for i386-mingw32 (current Ruby installations on Windows use this platform)
+
 == 0.2.1.20101110 (Beta)
 
 * Changed copyright mentions.
