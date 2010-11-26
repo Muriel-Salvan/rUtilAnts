@@ -274,7 +274,7 @@ module RUtilAnts
       def dump
         logMsg "#{@EmptyDirs.size} empty directories:"
         @EmptyDirs.each_with_index do |iDirName, iIdxDir|
-          logMsg "* [#{iIdxdir}]: #{iDirName}"
+          logMsg "* [#{iIdxDir}]: #{iDirName}"
         end
         logMsg "#{@LstFiles.size} files (#{@TotalSize} bytes):"
         @LstFiles.each_with_index do |iFileInfo, iIdxFile|
