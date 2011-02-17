@@ -62,6 +62,7 @@ module RUtilAnts
         # Return:
         # * _String_: The file name
         def getCorrespondingFileBaseName
+          # TODO: Handle the case where there is no base name (ie. www.google.com instead of www.google.com/index.html)
           # Check that extension has no characters following the URL (#, ? and ;)
           return getValidFileName(File.basename(@URLPath.gsub(/^([^#\?;]*).*$/,'\1')))
         end

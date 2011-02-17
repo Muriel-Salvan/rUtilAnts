@@ -323,12 +323,13 @@ Details:
       # * *iMsg* (_String_): Message to log
       def logDebug(iMsg)
         # Log into stdout
-        if ((@DebugMode) and
-            (@ScreenOutput))
-          $stdout << "#{iMsg}\n"
-        end
-        if (@LogFile != nil)
-          logFile(iMsg)
+        if (@DebugMode)
+          if (@ScreenOutput)
+            $stdout << "#{iMsg}\n"
+          end
+          if (@LogFile != nil)
+            logFile(iMsg)
+          end
         end
       end
 
