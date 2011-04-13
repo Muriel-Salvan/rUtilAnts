@@ -145,6 +145,75 @@ module RUtilAnts
       Dir.chdir(lOldDir)
     end
 
+    # Constants used for fileMutex
+    # There was no lock on the mutex
+    FILEMUTEX_NO_LOCK = 0
+    # There was a lock on the mutex, but former process did not exist anymore
+    FILEMUTEX_ZOMBIE_LOCK = 1
+    # The lock is taken by a running process
+    FILEMUTEX_LOCK_TAKEN = 2
+    # The lock file is invalid
+    FILEMUTEX_INVALID_LOCK = 3
+    # Execute a code block protected by a file mutex
+    #
+    # Parameters:
+    # * *iProcessID* (_String_): Process ID to be used to identify the mutex
+    # * *CodeBlock*: The code called if the mutex is taken
+    # Return:
+    # * _Integer_: Error code
+    def fileMutex(iProcessID)
+      rResult = FILEMUTEX_NO_LOCK
+
+      # Prevent concurrent execution
+      require 'tmpdir'
+      lLockFile = "#{Dir.tmpdir}/FileMutex_#{iProcessID}.lock"
+      if (File.exists?(lLockFile))
+        logErr "Another instance of process #{iProcessID} is already running. Delete file #{lLockFile} if it is not."
+        begin
+          lDetails = nil
+          File.open(lLockFile, 'r') do |iFile|
+            lDetails = eval(iFile.read)
+          end
+          logErr "Details of the running instance: #{lDetails.inspect}"
+          # If the process does not exist anymore, remove the lock file
+          # TODO: Adapt this to non Unix systems
+          if (File.exists?("/proc/#{lDetails[:PID]}"))
+            rResult = FILEMUTEX_LOCK_TAKEN
+          else
+            logErr "Process #{lDetails[:PID]} does not exist anymore. Removing lock file."
+            File.unlink(lLockFile)
+            rResult = FILEMUTEX_ZOMBIE_LOCK
+          end
+        rescue Exception
+          logErr "Invalid lock file #{lLockFile}: #{$!}."
+          rResult = FILEMUTEX_INVALID_LOCK
+        end
+      end
+      if ((rResult == FILEMUTEX_NO_LOCK) or
+          (rResult == FILEMUTEX_ZOMBIE_LOCK))
+        # Create the lock for our process
+        File.open(lLockFile, 'w') do |oFile|
+          oFile << "
+            {
+              :ExecutionTime => '#{DateTime.now.strftime('%Y-%m-%d %H:%M:%S')}',
+              :PID => '#{Process.pid}'
+            }
+          "
+        end
+        begin
+          yield
+          File.unlink(lLockFile)
+        rescue Exception
+          begin
+            File.unlink(lLockFile)
+          rescue Exception
+            logErr "Exception while deleting lock file #{lLockFile}: #{$!}"
+          end
+          raise
+        end
+      end
+    end
+
   end
 
 end
