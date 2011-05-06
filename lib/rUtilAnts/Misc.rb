@@ -12,6 +12,28 @@ module RUtilAnts
       Object.module_eval('include RUtilAnts::Misc')
     end
 
+    # Cache the access to a given code result, based on the caller ID
+    # This can be used to cache variables computation (ex. lVar = cachedVar{ lengthyFctToComputeVar } )
+    #
+    # Parameters:
+    # * *&iCode* (_CodeBlock_): The code called to compute the result
+    # ** Return:
+    # *** _Object_: The computed result
+    # Return:
+    # * _Object_: The result of the code
+    def cachedVar(&iCode)
+      if (defined?(@RUtilAnts_Misc_CachedVars) == nil)
+        @RUtilAnts_Misc_CachedVars = {}
+      end
+      # Compute the hash of this code
+      lHash = caller[0].hash
+      if (@RUtilAnts_Misc_CachedVars[lHash] == nil)
+        @RUtilAnts_Misc_CachedVars[lHash] = iCode.call
+      end
+
+      return @RUtilAnts_Misc_CachedVars[lHash]
+    end
+
     # Get a valid file name, taking into account platform specifically prohibited characters in file names.
     #
     # Parameters:
