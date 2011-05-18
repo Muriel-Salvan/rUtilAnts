@@ -27,7 +27,6 @@ RubyPackager::ReleaseInfo.new.
     'LICENSE',
     'AUTHORS',
     'Credits',
-    'TODO',
     'ChangeLog'
   ] ).
   gem(
