@@ -234,6 +234,8 @@ module RUtilAnts
           raise
         end
       end
+
+      return rResult
     end
 
   end
