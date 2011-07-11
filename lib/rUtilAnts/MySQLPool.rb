@@ -59,7 +59,7 @@ module RUtilAnts
             lMySQL = nil
           end
           if (rError == nil)
-            $RUtilAnts_MySQLPool_Pool[lDBKey] = [ lMySQL, 0, [] ]
+            $RUtilAnts_MySQLPool_Pool[lDBKey] = [ lMySQL, 0, {} ]
           else
             $RUtilAnts_MySQLPool_Pool[lDBKey] = nil
           end
