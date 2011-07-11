@@ -53,6 +53,11 @@ module RUtilAnts
           require 'mysql'
           begin
             lMySQL = Mysql.new(iHost, iUser, iPassword, iDBName)
+#            lMySQL = Mysql.init
+#            lMySQL.options(Mysql::OPT_CONNECT_TIMEOUT, 28800)
+#            lMySQL.options(Mysql::OPT_READ_TIMEOUT, 28800)
+#            lMySQL.options(Mysql::OPT_WRITE_TIMEOUT, 28800)
+#            lMySQL.real_connect(iHost, iUser, iPassword, iDBName)
           rescue Exception
             logErr "Error while creating MySQL connection to #{lDBKey.inspect}: #{$!}.\n#{$!.backtrace.join("\n")}"
             rError = $!
