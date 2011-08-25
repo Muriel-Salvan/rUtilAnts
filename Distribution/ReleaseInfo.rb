@@ -16,7 +16,7 @@ RubyPackager::ReleaseInfo.new.
     :Description => 'rUtilAnts is used by several projects. It includes common standard code.',
     :ImageURL => 'http://rutilants.sourceforge.net/wiki/images/c/c9/Logo.png',
     :FaviconURL => 'http://rutilants.sourceforge.net/wiki/images/2/26/Favicon.png',
-    :SVNBrowseURL => 'http://rutilants.svn.sourceforge.net/viewvc/rutilants/',
+    :SVNBrowseURL => 'http://rutilants.git.sourceforge.net/',
     :DevStatus => 'Beta'
   ).
   addCoreFiles( [

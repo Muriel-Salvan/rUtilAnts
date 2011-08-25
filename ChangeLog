@@ -1,5 +1,16 @@
 = rUtilAnts Release History
 
+== 0.3.0.20110825 (Beta)
+
+* Added MySQLPool library: pool MySQL connections and prepared statements for reuse.
+* Migrated TODO list to Trackers.
+* Updated copyright info.
+* Migration to git.
+* Misc: Added cachedVar method: this uses an instance variable to cache a code block result.
+* Misc: Added fileMutex method: this mimicks a mutex on tmpdir, but is not reliable yet. Meant for weak processes.
+* Bug correction: Logging: Do not log debug logs in log file if logdebug is disabled.
+* Bug correction: Archive: Dumping empty directories did not work.
+
 == 0.2.2.20101125 (Beta)
 
 * Archive: Implemented a new module that provides archiving strings, objects and files with compression and encryption
