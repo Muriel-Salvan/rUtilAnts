@@ -184,14 +184,14 @@ module RUtilAnts
                 # If it is not given as parameter, try getting the singleton
                 if ((lRDIInstaller == nil) and
                     (defined?(RDI::Installer) != nil))
-                  lRDIInstaller = RDI::Installer.getMainInstance
+                  lRDIInstaller = RDI::Installer.get_main_instance
                 end
                 if (lRDIInstaller != nil)
                   if (lOnlyIfExtDepsResolved)
                     # Test that each dependency is accessible
                     lSuccess = true
                     lDesc[:Dependencies].each do |iDepDesc|
-                      lSuccess = lRDIInstaller.testDependency(iDepDesc)
+                      lSuccess = lRDIInstaller.test_dependency(iDepDesc)
                       if (!lSuccess)
                         # It is useless to continue
                         break
@@ -199,7 +199,7 @@ module RUtilAnts
                     end
                   else
                     # Load other dependencies
-                    lError, lContextModifiers, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(lDesc[:Dependencies])
+                    lError, lContextModifiers, lIgnored, lUnresolved = lRDIInstaller.ensure_dependencies(lDesc[:Dependencies])
                     if (lRDIContextModifiers != nil)
                       lRDIContextModifiers.merge!(lContextModifiers)
                     end

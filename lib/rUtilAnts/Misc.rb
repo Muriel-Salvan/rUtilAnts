@@ -60,14 +60,14 @@ module RUtilAnts
 
       # Use RDI if possible to ensure the dependencies on zlib.dll and rubyzip
       if (defined?(RDI) != nil)
-        lRDIInstaller = RDI::Installer.getMainInstance
+        lRDIInstaller = RDI::Installer.get_main_instance
         if (lRDIInstaller != nil)
           # First, test that the DLL exists.
           # If it does not exist, we can't install it, because ZLib.dll is downloadable only in ZIP format (kind of stupid ;-) )
           lDLLDep = nil
           case os
           when OS_WINDOWS
-            lDLLDep = RDI::Model::DependencyDescription.new('ZLib DLL').addDescription( {
+            lDLLDep = RDI::Model::DependencyDescription.new('ZLib DLL').add_description( {
               :Testers => [
                 {
                   :Type => 'DynamicLibraries',
@@ -81,18 +81,18 @@ module RUtilAnts
             log_bug "Sorry, installing ZLib on your platform #{os} is not yet supported."
           end
           if ((lDLLDep != nil) and
-              (!lRDIInstaller.testDependency(lDLLDep)))
+              (!lRDIInstaller.test_dependency(lDLLDep)))
             # Try adding the default local location for libraries
-            lRDIInstaller.ensureLocationInContext('LibraryPath', lRDIInstaller.getDefaultInstallLocation('Download', RDI::DEST_LOCAL))
+            lRDIInstaller.ensure_location_in_context('LibraryPath', lRDIInstaller.get_default_install_location('Download', RDI::DEST_LOCAL))
             # Try again
-            if (!lRDIInstaller.testDependency(lDLLDep))
+            if (!lRDIInstaller.test_dependency(lDLLDep))
               log_err "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and click OK once it is installed)."
             end
           end
           # Then, ensure the gem dependency
-          rError, lCMApplied, lIgnored, lUnresolved = lRDIInstaller.ensureDependencies(
+          rError, lCMApplied, lIgnored, lUnresolved = lRDIInstaller.ensure_dependencies(
             [
-              RDI::Model::DependencyDescription.new('RubyZip').addDescription( {
+              RDI::Model::DependencyDescription.new('RubyZip').add_description( {
                 :Testers => [
                   {
                     :Type => 'RubyRequires',

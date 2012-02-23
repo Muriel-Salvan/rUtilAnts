@@ -5,7 +5,7 @@
 
 module RUtilAnts
 
-  module URLCache
+  module URLAccess
 
     module URLHandlers
 

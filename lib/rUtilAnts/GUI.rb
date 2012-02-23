@@ -160,7 +160,7 @@ module RUtilAnts
       #
       # Parameters::
       # * *iRange* (_Integer_): The progress range
-      def setRange(iRange)
+      def set_range(iRange)
         @GProgress.range = iRange
         if (!@Determined)
           @Determined = true
@@ -182,7 +182,7 @@ module RUtilAnts
       #
       # Parameters::
       # * *iIncrement* (_Integer_): Value to increment [optional = 1]
-      def incValue(iIncrement = 1)
+      def inc_value(iIncrement = 1)
         @GProgress.value += iIncrement
         refreshState
       end

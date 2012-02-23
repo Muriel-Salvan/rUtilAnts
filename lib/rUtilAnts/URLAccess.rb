@@ -31,8 +31,8 @@ module RUtilAnts
             lPluginName = File.basename(iFileName)[0..-4]
             require "rUtilAnts/URLHandlers/#{lPluginName}"
             @Plugins[lPluginName] = [
-              eval("RUtilAnts::URLCache::URLHandlers::#{lPluginName}::getMatchingRegexps"),
-              "RUtilAnts::URLCache::URLHandlers::#{lPluginName}"
+              eval("RUtilAnts::URLAccess::URLHandlers::#{lPluginName}::getMatchingRegexps"),
+              "RUtilAnts::URLAccess::URLHandlers::#{lPluginName}"
             ]
           rescue Exception
             log_exc$!, "Error while requiring URLHandler plugin #{iFileName}"
