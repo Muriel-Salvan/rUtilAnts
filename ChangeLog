@@ -1,5 +1,21 @@
 = rUtilAnts Release History
 
+== 1.0.0.20120223 (Beta)
+
+* Renamed public methods to match standard Ruby's conventions
+* Removed rdoc warning in documentation
+* Adapted to last version of RDI
+* Adapted to new RDoc conventions
+* Updated Copyright information
+* Updated email address of Muriel Salvan
+* Removed global variables used as singletons, and replaced them with class variables on a generic mechanism
+* Logging: Added :no_dialog option to avoid dialogs when log_err, log_msg or log_bug are used
+* Logging: Changed the way initialization work, with optional arguments the Ruby way
+* Misc: Added replace_vars method to substitute variables of form %{...} in a string
+* Platform: Added support for shortcuts (create, get file name and follow)
+* Platform: Windows platforms use PATHEXT environment variable to get default executable extensions
+* Bug correction: URLHandlers did not work due to wrong namespace
+
 == 0.3.0.20110825 (Beta)
 
 * Added MySQLPool library: pool MySQL connections and prepared statements for reuse.
