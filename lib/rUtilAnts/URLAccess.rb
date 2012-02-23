@@ -31,7 +31,7 @@ module RUtilAnts
             lPluginName = File.basename(iFileName)[0..-4]
             require "rUtilAnts/URLHandlers/#{lPluginName}"
             @Plugins[lPluginName] = [
-              eval("RUtilAnts::URLAccess::URLHandlers::#{lPluginName}::getMatchingRegexps"),
+              eval("RUtilAnts::URLAccess::URLHandlers::#{lPluginName}::get_matching_regexps"),
               "RUtilAnts::URLAccess::URLHandlers::#{lPluginName}"
             ]
           rescue Exception
@@ -78,7 +78,7 @@ module RUtilAnts
           lURLHandler = get_url_handler(iURL)
         end
         # Get the content from the handler
-        lContentFormat, lContent = lURLHandler.getContent(lFollowRedirections)
+        lContentFormat, lContent = lURLHandler.get_content(lFollowRedirections)
         case (lContentFormat)
         when CONTENT_ERROR
           rError = lContent
@@ -105,7 +105,7 @@ module RUtilAnts
           if (lLocalFileAccess)
             # Write the content in a local temporary file
             require 'tmpdir'
-            lBaseName = lURLHandler.getCorrespondingFileBaseName
+            lBaseName = lURLHandler.get_corresponding_file_base_name
             lLocalFileName = "#{Dir.tmpdir}/URLCache/#{lBaseName}"
             begin
               require 'fileutils'
@@ -124,7 +124,7 @@ module RUtilAnts
             end
           else
             # Give it to the code block directly
-            yield(lContent, lURLHandler.getCorrespondingFileBaseName)
+            yield(lContent, lURLHandler.get_corresponding_file_base_name)
           end
         when CONTENT_LOCALFILENAME, CONTENT_LOCALFILENAME_TEMPORARY
           lLocalFileName = lContent
@@ -141,7 +141,7 @@ module RUtilAnts
             end
           end
           if (rError == nil)
-            yield(lContent, lURLHandler.getCorrespondingFileBaseName)
+            yield(lContent, lURLHandler.get_corresponding_file_base_name)
           end
           # If the file was temporary, delete it
           if (lContentFormat == CONTENT_LOCALFILENAME_TEMPORARY)

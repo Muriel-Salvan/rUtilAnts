@@ -16,7 +16,7 @@ module RUtilAnts
         #
         # Return::
         # * <em>list<Regexp></em>: The list of regexps matching URLs from this handler
-        def self.getMatchingRegexps
+        def self.get_matching_regexps
           return [
             /^file:\/\/\/(.*)$/
           ]
@@ -38,7 +38,7 @@ module RUtilAnts
         #
         # Return::
         # * _String_: The server ID
-        def getServerID
+        def get_server_id
           return nil
         end
 
@@ -46,7 +46,7 @@ module RUtilAnts
         #
         # Return::
         # * _Integer_: The CRC
-        def getCRC
+        def get_crc
           # We consider the file's modification time
           if (File.exists?(@URL))
             return File.mtime(@URL)
@@ -60,7 +60,7 @@ module RUtilAnts
         #
         # Return::
         # * _String_: The file name
-        def getCorrespondingFileBaseName
+        def get_corresponding_file_base_name
           return File.basename(@URL)
         end
 
@@ -76,7 +76,7 @@ module RUtilAnts
         #   * _String_ if CONTENT_STRING: The real content
         #   * _String_ if CONTENT_LOCALFILENAME: The name of the local file name storing the content
         #   * _String_ if CONTENT_LOCALFILENAME_TEMPORARY: The name of the temporary local file name storing the content
-        def getContent(iFollowRedirections)
+        def get_content(iFollowRedirections)
           rContentFormat = nil
           rContent = nil
 

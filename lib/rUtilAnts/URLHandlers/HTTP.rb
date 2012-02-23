@@ -16,7 +16,7 @@ module RUtilAnts
         #
         # Return::
         # * <em>list<Regexp></em>: The list of regexps matching URLs from this handler
-        def self.getMatchingRegexps
+        def self.get_matching_regexps
           return [
             /^(http|https):\/\/.*$/
           ]
@@ -43,7 +43,7 @@ module RUtilAnts
         #
         # Return::
         # * _String_: The server ID
-        def getServerID
+        def get_server_id
           return "#{@URLProtocol}://#{@URLServer}"
         end
 
@@ -51,7 +51,7 @@ module RUtilAnts
         #
         # Return::
         # * _Integer_: The CRC
-        def getCRC
+        def get_crc
           # We consider HTTP URLs to be definitive: CRCs will never change.
           return 0
         end
@@ -61,7 +61,7 @@ module RUtilAnts
         #
         # Return::
         # * _String_: The file name
-        def getCorrespondingFileBaseName
+        def get_corresponding_file_base_name
           # TODO: Handle the case where there is no base name (ie. www.google.com instead of www.google.com/index.html)
           # Check that extension has no characters following the URL (#, ? and ;)
           return get_valid_file_name(File.basename(@URLPath.gsub(/^([^#\?;]*).*$/,'\1')))
@@ -79,7 +79,7 @@ module RUtilAnts
         #   * _String_ if CONTENT_STRING: The real content
         #   * _String_ if CONTENT_LOCALFILENAME: The name of the local file name storing the content
         #   * _String_ if CONTENT_LOCALFILENAME_TEMPORARY: The name of the temporary local file name storing the content
-        def getContent(iFollowRedirections)
+        def get_content(iFollowRedirections)
           rContentFormat = nil
           rContent = nil
 

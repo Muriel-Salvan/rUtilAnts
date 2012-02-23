@@ -58,13 +58,13 @@ module RUtilAnts
         end
         # Get the URL handler corresponding to this URL
         lURLHandler = get_url_handler(iURL)
-        lServerID = lURLHandler.getServerID
+        lServerID = lURLHandler.get_server_id
         if (@HostsDown.has_key?(lServerID))
           rError = ServerDownError.new("Server #{iURL} is currently down.")
         else
           lURLHash = iURL.hash
           # Check if it is in the cache, or if we force refresh, or if the URL was invalidated
-          lCurrentCRC = lURLHandler.getCRC
+          lCurrentCRC = lURLHandler.get_crc
           if ((@URLs[lURLHash] == nil) or
               (lForceLoad) or
               (@URLs[lURLHash][0] != lCurrentCRC))

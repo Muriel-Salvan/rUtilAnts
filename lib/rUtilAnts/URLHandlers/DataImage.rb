@@ -16,7 +16,7 @@ module RUtilAnts
         #
         # Return::
         # * <em>list<Regexp></em>: The list of regexps matching URLs from this handler
-        def self.getMatchingRegexps
+        def self.get_matching_regexps
           return [
             /^data:image.*$/
           ]
@@ -44,7 +44,7 @@ module RUtilAnts
         #
         # Return::
         # * _String_: The server ID
-        def getServerID
+        def get_server_id
           return nil
         end
 
@@ -52,7 +52,7 @@ module RUtilAnts
         #
         # Return::
         # * _Integer_: The CRC
-        def getCRC
+        def get_crc
           # As the content is in the URL, it will be natural to not find it anymore in the cache when it is changed.
           # Therefore there is no need to return a CRC.
           return 0
@@ -63,7 +63,7 @@ module RUtilAnts
         #
         # Return::
         # * _String_: The file name
-        def getCorrespondingFileBaseName
+        def get_corresponding_file_base_name
           return "DataImage.#{@Ext}"
         end
 
@@ -79,7 +79,7 @@ module RUtilAnts
         #   * _String_ if CONTENT_STRING: The real content
         #   * _String_ if CONTENT_LOCALFILENAME: The name of the local file name storing the content
         #   * _String_ if CONTENT_LOCALFILENAME_TEMPORARY: The name of the temporary local file name storing the content
-        def getContent(iFollowRedirections)
+        def get_content(iFollowRedirections)
           rContentFormat = nil
           rContent = nil
 
