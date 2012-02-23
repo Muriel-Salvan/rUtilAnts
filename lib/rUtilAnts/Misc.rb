@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -8,20 +8,20 @@ module RUtilAnts
   module Misc
 
     # Set these methods into the Object namespace
-    def self.initializeMisc
+    def self.install_misc_on_object
       Object.module_eval('include RUtilAnts::Misc')
     end
 
     # Cache the access to a given code result, based on the caller ID
-    # This can be used to cache variables computation (ex. lVar = cachedVar{ lengthyFctToComputeVar } )
+    # This can be used to cache variables computation (ex. lVar = cached_var{ lengthyFctToComputeVar } )
     #
-    # Parameters:
+    # Parameters::
     # * *&iCode* (_CodeBlock_): The code called to compute the result
-    # ** Return:
-    # *** _Object_: The computed result
-    # Return:
+    #   * Return::
+    #     * _Object_: The computed result
+    # Return::
     # * _Object_: The result of the code
-    def cachedVar(&iCode)
+    def cached_var(&iCode)
       if (defined?(@RUtilAnts_Misc_CachedVars) == nil)
         @RUtilAnts_Misc_CachedVars = {}
       end
@@ -36,13 +36,13 @@ module RUtilAnts
 
     # Get a valid file name, taking into account platform specifically prohibited characters in file names.
     #
-    # Parameters:
+    # Parameters::
     # * *iFileName* (_String_): The original file name wanted
-    # Return:
+    # Return::
     # * _String_: The correct file name
-    def getValidFileName(iFileName)
-      if ((defined?($rUtilAnts_Platform_Info) != nil))
-        return iFileName.gsub(/[#{Regexp.escape($rUtilAnts_Platform_Info.getProhibitedFileNamesCharacters)}]/, '_')
+    def get_valid_file_name(iFileName)
+      if (defined?(getProhibitedFileNamesCharacters) != nil)
+        return iFileName.gsub(/[#{Regexp.escape(getProhibitedFileNamesCharacters)}]/, '_')
       else
         return iFileName
       end
@@ -50,12 +50,12 @@ module RUtilAnts
 
     # Extract a Zip archive in a given system dependent lib sub-directory
     #
-    # Parameters:
+    # Parameters::
     # * *iZipFileName* (_String_): The zip file name to extract content from
     # * *iDirName* (_String_): The name of the directory to store the zip to
-    # Return:
+    # Return::
     # * _Exception_: Error, or nil in case of success
-    def extractZipFile(iZipFileName, iDirName)
+    def extract_zip_file(iZipFileName, iDirName)
       rError = nil
 
       # Use RDI if possible to ensure the dependencies on zlib.dll and rubyzip
@@ -65,7 +65,7 @@ module RUtilAnts
           # First, test that the DLL exists.
           # If it does not exist, we can't install it, because ZLib.dll is downloadable only in ZIP format (kind of stupid ;-) )
           lDLLDep = nil
-          case $rUtilAnts_Platform_Info.os
+          case os
           when OS_WINDOWS
             lDLLDep = RDI::Model::DependencyDescription.new('ZLib DLL').addDescription( {
               :Testers => [
@@ -78,7 +78,7 @@ module RUtilAnts
               :Installers => []
             } )
           else
-            logBug "Sorry, installing ZLib on your platform #{$rUtilAnts_Platform_Info.os} is not yet supported."
+            log_bug "Sorry, installing ZLib on your platform #{os} is not yet supported."
           end
           if ((lDLLDep != nil) and
               (!lRDIInstaller.testDependency(lDLLDep)))
@@ -86,7 +86,7 @@ module RUtilAnts
             lRDIInstaller.ensureLocationInContext('LibraryPath', lRDIInstaller.getDefaultInstallLocation('Download', RDI::DEST_LOCAL))
             # Try again
             if (!lRDIInstaller.testDependency(lDLLDep))
-              logErr "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and click OK once it is installed)."
+              log_err "zlib.dll is not installed in your system.\nUnfortunately RDI can't help because the only way to install it is to download it through a ZIP file.\nPlease install it manually from http://zlib.net (you can do it now and click OK once it is installed)."
             end
           end
           # Then, ensure the gem dependency
@@ -152,10 +152,10 @@ module RUtilAnts
     # Execute a code block after having changed current directory.
     # Ensure the directory will be changed back at the end of the block, even if exceptions are thrown.
     #
-    # Parameters:
+    # Parameters::
     # * *iDir* (_String_): The directory to change into
     # * *CodeBlock*: Code called once the current directory has been changed
-    def changeDir(iDir)
+    def change_dir(iDir)
       lOldDir = Dir.getwd
       Dir.chdir(iDir)
       begin
@@ -167,7 +167,7 @@ module RUtilAnts
       Dir.chdir(lOldDir)
     end
 
-    # Constants used for fileMutex
+    # Constants used for file_mutex
     # There was no lock on the mutex
     FILEMUTEX_NO_LOCK = 0
     # There was a lock on the mutex, but former process did not exist anymore
@@ -178,36 +178,36 @@ module RUtilAnts
     FILEMUTEX_INVALID_LOCK = 3
     # Execute a code block protected by a file mutex
     #
-    # Parameters:
+    # Parameters::
     # * *iProcessID* (_String_): Process ID to be used to identify the mutex
     # * *CodeBlock*: The code called if the mutex is taken
-    # Return:
+    # Return::
     # * _Integer_: Error code
-    def fileMutex(iProcessID)
+    def file_mutex(iProcessID)
       rResult = FILEMUTEX_NO_LOCK
 
       # Prevent concurrent execution
       require 'tmpdir'
       lLockFile = "#{Dir.tmpdir}/FileMutex_#{iProcessID}.lock"
       if (File.exists?(lLockFile))
-        logErr "Another instance of process #{iProcessID} is already running. Delete file #{lLockFile} if it is not."
+        log_err "Another instance of process #{iProcessID} is already running. Delete file #{lLockFile} if it is not."
         begin
           lDetails = nil
           File.open(lLockFile, 'r') do |iFile|
             lDetails = eval(iFile.read)
           end
-          logErr "Details of the running instance: #{lDetails.inspect}"
+          log_err "Details of the running instance: #{lDetails.inspect}"
           # If the process does not exist anymore, remove the lock file
           # TODO: Adapt this to non Unix systems
           if (File.exists?("/proc/#{lDetails[:PID]}"))
             rResult = FILEMUTEX_LOCK_TAKEN
           else
-            logErr "Process #{lDetails[:PID]} does not exist anymore. Removing lock file."
+            log_err "Process #{lDetails[:PID]} does not exist anymore. Removing lock file."
             File.unlink(lLockFile)
             rResult = FILEMUTEX_ZOMBIE_LOCK
           end
         rescue Exception
-          logErr "Invalid lock file #{lLockFile}: #{$!}."
+          log_err "Invalid lock file #{lLockFile}: #{$!}."
           rResult = FILEMUTEX_INVALID_LOCK
         end
       end
@@ -229,13 +229,46 @@ module RUtilAnts
           begin
             File.unlink(lLockFile)
           rescue Exception
-            logErr "Exception while deleting lock file #{lLockFile}: #{$!}"
+            log_err "Exception while deleting lock file #{lLockFile}: #{$!}"
           end
           raise
         end
       end
 
       return rResult
+    end
+
+    # Replace variables of the form %{VariableName} from a string.
+    # Take values from a hash having :VariableName => 'VariableValue'.
+    # Works also recursively if a variable value contains again %{OtherVariableName}.
+    # Does not check if variables really exist (will replace any unknown variable with '').
+    #
+    # Parameters::
+    # * *iStr* (_String_): The string to replace from
+    # * *iVars* (<em>map<Symbol,String></em>): The variables
+    # Return::
+    # * _String_: The string replaced
+    def replace_vars(iStr, iVars)
+      rStr = iStr
+
+      lFinished = false
+      while (!lFinished)
+        lMatch = rStr.match(/^(.*[^%])%\{([^\}]+)\}(.*)$/)
+        if (lMatch == nil)
+          # Try with %{ at the beginning of the string
+          lMatch = rStr.match(/^%\{([^\}]+)\}(.*)$/)
+          if (lMatch == nil)
+            # No more occurrences
+            lFinished = true
+          else
+            rStr = "#{iVars[lMatch[1].to_sym]}#{lMatch[2]}"
+          end
+        else
+          rStr = "#{lMatch[1]}#{iVars[lMatch[2].to_sym]}#{lMatch[3]}"
+        end
+      end
+
+      return rStr
     end
 
   end

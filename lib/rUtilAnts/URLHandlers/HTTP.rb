@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -14,7 +14,7 @@ module RUtilAnts
 
         # Get a list of regexps matching the URL to get to this handler
         #
-        # Return:
+        # Return::
         # * <em>list<Regexp></em>: The list of regexps matching URLs from this handler
         def self.getMatchingRegexps
           return [
@@ -24,7 +24,7 @@ module RUtilAnts
 
         # Constructor
         #
-        # Parameters:
+        # Parameters::
         # * *iURL* (_String_): The URL that this handler will manage
         def initialize(iURL)
           @URL = iURL
@@ -33,7 +33,7 @@ module RUtilAnts
             lURLMatch = iURL.match(/^(http|https):\/\/(.*)$/)
           end
           if (lURLMatch == nil)
-            logBug "URL #{iURL} was identified as an http like, but it appears to be false."
+            log_bug "URL #{iURL} was identified as an http like, but it appears to be false."
           else
             @URLProtocol, @URLServer, @URLPath = lURLMatch[1..3]
           end
@@ -41,7 +41,7 @@ module RUtilAnts
 
         # Get the server ID
         #
-        # Return:
+        # Return::
         # * _String_: The server ID
         def getServerID
           return "#{@URLProtocol}://#{@URLServer}"
@@ -49,7 +49,7 @@ module RUtilAnts
 
         # Get the current CRC of the URL
         #
-        # Return:
+        # Return::
         # * _Integer_: The CRC
         def getCRC
           # We consider HTTP URLs to be definitive: CRCs will never change.
@@ -59,26 +59,26 @@ module RUtilAnts
         # Get a corresponding file base name.
         # This method has to make sure file extensions are respected, as it can be used for further processing.
         #
-        # Return:
+        # Return::
         # * _String_: The file name
         def getCorrespondingFileBaseName
           # TODO: Handle the case where there is no base name (ie. www.google.com instead of www.google.com/index.html)
           # Check that extension has no characters following the URL (#, ? and ;)
-          return getValidFileName(File.basename(@URLPath.gsub(/^([^#\?;]*).*$/,'\1')))
+          return get_valid_file_name(File.basename(@URLPath.gsub(/^([^#\?;]*).*$/,'\1')))
         end
 
         # Get the content of the URL
         #
-        # Parameters:
+        # Parameters::
         # * *iFollowRedirections* (_Boolean_): Do we follow redirections while accessing the content ?
-        # Return:
+        # Return::
         # * _Integer_: Type of content returned
         # * _Object_: The content, depending on the type previously returned:
-        # ** _Exception_ if CONTENT_ERROR: The corresponding error
-        # ** _String_ if CONTENT_REDIRECT: The new URL
-        # ** _String_ if CONTENT_STRING: The real content
-        # ** _String_ if CONTENT_LOCALFILENAME: The name of the local file name storing the content
-        # ** _String_ if CONTENT_LOCALFILENAME_TEMPORARY: The name of the temporary local file name storing the content
+        #   * _Exception_ if CONTENT_ERROR: The corresponding error
+        #   * _String_ if CONTENT_REDIRECT: The new URL
+        #   * _String_ if CONTENT_STRING: The real content
+        #   * _String_ if CONTENT_LOCALFILENAME: The name of the local file name storing the content
+        #   * _String_ if CONTENT_LOCALFILENAME_TEMPORARY: The name of the temporary local file name storing the content
         def getContent(iFollowRedirections)
           rContentFormat = nil
           rContent = nil

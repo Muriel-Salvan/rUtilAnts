@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -53,11 +53,10 @@ module RUtilAnts
     class PluginDependenciesUnresolvedError < RuntimeError
     end
 
-    # Main class storing info about plugins
-    class PluginsManager
+    module PluginsInterface
 
       # Constructor
-      def initialize
+      def init_plugins
         # Map of plugins, per category
         # map< String, map< String, map< Symbol, Object > > >
         @Plugins = {}
@@ -65,14 +64,14 @@ module RUtilAnts
 
       # Register a new plugin
       #
-      # Parameters:
+      # Parameters::
       # * *iCategoryName* (_String_): Category this plugin belongs to
       # * *iPluginName* (_String_): Plugin name
       # * *iFileName* (_String_): File name containing the plugin (can be nil)
       # * *iDesc* (<em>map<Symbol,Object></em>): Plugin's description (can be nil)
       # * *iClassName* (_String_): Name of the plugin class
       # * *iInitCodeBlock* (_Proc_): Code block to call when initializing the real instance (can be nil)
-      def registerNewPlugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
+      def register_new_plugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
         # Complete the description with some metadata
         if (@Plugins[iCategoryName] == nil)
           @Plugins[iCategoryName] = {}
@@ -95,13 +94,13 @@ module RUtilAnts
 
       # Parse plugins from a given directory
       #
-      # Parameters:
+      # Parameters::
       # * *iCategory* (_Object_): Category those plugins will belong to
       # * *iDir* (_String_): Directory to parse for plugins
       # * *iBaseClassNames* (_String_): The base class name of plugins to be instantiated
       # * *iInitCodeBlock* (_CodeBlock_): Code to be executed first time the plugin will be instantiated (can be ommitted):
-      # ** *ioPlugin* (_Object_): Plugin instance
-      def parsePluginsFromDir(iCategory, iDir, iBaseClassNames, &iInitCodeBlock)
+      #   * *ioPlugin* (_Object_): Plugin instance
+      def parse_plugins_from_dir(iCategory, iDir, iBaseClassNames, &iInitCodeBlock)
         # Gather descriptions
         # map< String, map >
         lDescriptions = {}
@@ -115,11 +114,11 @@ module RUtilAnts
               if (lDesc.is_a?(Hash))
                 lDescriptions[lPluginName] = lDesc
               else
-                logBug "Plugin description #{iFileName} is incorrect. The file should just describe a simple hash map."
+                log_bug "Plugin description #{iFileName} is incorrect. The file should just describe a simple hash map."
               end
             end
           rescue Exception
-            logExc $!, "Error while loading file #{iFileName}. Ignoring this description."
+            log_exc $!, "Error while loading file #{iFileName}. Ignoring this description."
           end
         end
         # Now, parse the plugins themselves
@@ -132,7 +131,7 @@ module RUtilAnts
           if (@Plugins[iCategory][lPluginName] == nil)
             # Check if we have a description
             lDesc = lDescriptions[lPluginName]
-            registerNewPlugin(
+            register_new_plugin(
               iCategory,
               lPluginName,
               iFileName,
@@ -141,7 +140,7 @@ module RUtilAnts
               iInitCodeBlock
             )
           else
-            logErr "Plugin named #{lPluginName} in category #{iCategory} already exists. Please name it differently. Ignoring it from #{iFileName}."
+            log_warn "Plugin named #{lPluginName} in category #{iCategory} already exists. Please name it differently. Ignoring it from #{iFileName}."
           end
         end
       end
@@ -149,17 +148,17 @@ module RUtilAnts
       # Get the named plugin instance.
       # Uses RDI if given in parameters or if Main RDI Installer defined to resolve Plugins' dependencies.
       #
-      # Parameters:
+      # Parameters::
       # * *iCategory* (_Object_): Category those plugins will belong to
       # * *iPluginName* (_String_): Plugin name
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
-      # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
-      # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
-      # Return:
+      #   * *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
+      #   * *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
+      #   * *RDIContextModifiers* (<em>map<String,list< [String,Object] >></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
+      # Return::
       # * _Object_: The corresponding plugin, or nil in case of failure
       # * _Exception_: The error, or nil in case of success
-      def getPluginInstance(iCategory, iPluginName, iParameters = {})
+      def get_plugin_instance(iCategory, iPluginName, iParameters = {})
         rPlugin = nil
         rError = nil
 
@@ -224,7 +223,7 @@ module RUtilAnts
                   # Load other plugins
                   lDesc[:PluginsDependencies].each do |iPluginInfo|
                     iPluginCategory, iPluginName = iPluginInfo
-                    lPlugin, lError = getPluginInstance(iPluginCategory, iPluginName, iParameters)
+                    lPlugin, lError = get_plugin_instance(iPluginCategory, iPluginName, iParameters)
                     lSuccess = (lError == nil)
                     if (!lSuccess)
                       # Don't try further
@@ -267,20 +266,20 @@ module RUtilAnts
 
       # Get the named plugin description
       #
-      # Parameters:
+      # Parameters::
       # * *iCategory* (_Object_): Category those plugins will belong to
       # * *iPluginName* (_String_): Plugin name
-      # Return:
-      # * <em>map<Symbol,Object></em>: The corresponding description, or nil in case of failure
-      def getPluginDescription(iCategory, iPluginName)
+      # Return::
+      # * <em>map<Symbol,Object></em>: The corresponding description
+      def get_plugin_description(iCategory, iPluginName)
         rDesc = nil
 
         if (@Plugins[iCategory] == nil)
-          logErr "Unknown plugins category #{iCategory}."
+          raise UnknownCategoryError.new("Unknown plugins category #{iCategory}.")
         else
           rDesc = @Plugins[iCategory][iPluginName]
           if (rDesc == nil)
-            logErr "Unknown plugin #{iPluginName} in category #{iCategory}."
+            raise UnknownPluginError.new("Unknown plugin #{iPluginName} in category #{iCategory}.")
           end
         end
 
@@ -290,17 +289,17 @@ module RUtilAnts
       # Give access to a plugin.
       # An exception is thrown if the plugin does not exist.
       #
-      # Parameters:
+      # Parameters::
       # * *iCategoryName* (_String_): Category of the plugin to access
       # * *iPluginName* (_String_): Name of the plugin to access
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
-      # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
-      # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
+      #   * *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
+      #   * *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
+      #   * *RDIContextModifiers* (<em>map<String,list< [String,Object] >></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
       # * *CodeBlock*: The code called when the plugin is found:
-      # ** *ioPlugin* (_Object_): The corresponding plugin
-      def accessPlugin(iCategoryName, iPluginName, iParameters = {})
-        lPlugin, lError = getPluginInstance(iCategoryName, iPluginName, iParameters)
+      #   * *ioPlugin* (_Object_): The corresponding plugin
+      def access_plugin(iCategoryName, iPluginName, iParameters = {})
+        lPlugin, lError = get_plugin_instance(iCategoryName, iPluginName, iParameters)
         if (lPlugin == nil)
           raise lError
         else
@@ -315,13 +314,13 @@ module RUtilAnts
 
       # Get the list of plugin names of a given category
       #
-      # Parameters:
+      # Parameters::
       # * *iCategoryName* (_String_): The category for which we want the plugin names list
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *IncludeDisabled* (_Boolean_): Do we include disabled plugins ? [optional = false]
-      # Return:
+      #   * *IncludeDisabled* (_Boolean_): Do we include disabled plugins ? [optional = false]
+      # Return::
       # * <em>list<String></em>: The list of plugin names in this category
-      def getPluginNames(iCategoryName, iParameters = {})
+      def get_plugins_names(iCategoryName, iParameters = {})
         rPlugins = []
 
         lIncludeDisabled = iParameters[:IncludeDisabled]
@@ -342,13 +341,13 @@ module RUtilAnts
 
       # Get the map of plugins descriptions, indexed with plugin names
       #
-      # Parameters:
+      # Parameters::
       # * *iCategoryName* (_String_): The category for which we want the plugin names list
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *IncludeDisabled* (_Boolean_): Do we include disabled plugins ? [optional = false]
-      # Return:
+      #   * *IncludeDisabled* (_Boolean_): Do we include disabled plugins ? [optional = false]
+      # Return::
       # * <em>map<String,map<Symbol,Object>></em>: The map of plugin descriptions per plugin name
-      def getPluginsDescriptions(iCategoryName, iParameters = {})
+      def get_plugins_descriptions(iCategoryName, iParameters = {})
         rPlugins = {}
 
         lIncludeDisabled = iParameters[:IncludeDisabled]
@@ -372,107 +371,23 @@ module RUtilAnts
 
     end
 
-    # Initialize a plugins singleton
-    def self.initializePlugins
-      $rUtilAnts_Plugins_Manager = PluginsManager.new
-      Object.module_eval('include RUtilAnts::Plugins')
-    end
+    # Main class storing info about plugins
+    class PluginsManager
 
-    # Register a new plugin
-    #
-    # Parameters:
-    # * *iCategoryName* (_String_): Category this plugin belongs to
-    # * *iPluginName* (_String_): Plugin name
-    # * *iFileName* (_String_): File name containing the plugin (can be nil)
-    # * *iDesc* (<em>map<Symbol,Object></em>): Plugin's description (can be nil)
-    # * *iClassName* (_String_): Name of the plugin class
-    # * *iInitCodeBlock* (_Proc_): Code block to call when initializing the real instance (can be nil)
-    def registerNewPlugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
-      $rUtilAnts_Plugins_Manager.registerNewPlugin(iCategoryName, iPluginName, iFileName, iDesc, iClassName, iInitCodeBlock)
-    end
+      include PluginsInterface
 
-    # Parse plugins from a given directory
-    #
-    # Parameters:
-    # * *iCategory* (_Object_): Category those plugins will belong to
-    # * *iDir* (_String_): Directory to parse for plugins
-    # * *iBaseClassNames* (_String_): The base class name of plugins to be instantiated
-    def parsePluginsFromDir(iCategory, iDir, iBaseClassNames)
-      $rUtilAnts_Plugins_Manager.parsePluginsFromDir(iCategory, iDir, iBaseClassNames)
-    end
-
-    # Get the named plugin instance
-    #
-    # Parameters:
-    # * *iCategory* (_Object_): Category those plugins will belong to
-    # * *iPluginName* (_String_): Plugin name
-    # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
-    # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
-    # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
-    # Return:
-    # * _Object_: The corresponding plugin, or nil in case of failure
-    # * _Exception_: The error, or nil in case of success
-    def getPluginInstance(iCategory, iPluginName, iParameters = {})
-      return $rUtilAnts_Plugins_Manager.getPluginInstance(iCategory, iPluginName, iParameters)
-    end
-
-    # Get the named plugin description
-    #
-    # Parameters:
-    # * *iCategory* (_Object_): Category those plugins will belong to
-    # * *iPluginName* (_String_): Plugin name
-    # Return:
-    # * <em>map<Symbol,Object></em>: The corresponding description, or nil in case of failure
-    def getPluginDescription(iCategory, iPluginName)
-      return $rUtilAnts_Plugins_Manager.getPluginDescription(iCategory, iPluginName)
-    end
-
-    # Give access to a plugin.
-    # An exception is thrown if the plugin does not exist.
-    #
-    # Parameters:
-    # * *iCategoryName* (_String_): Category of the plugin to access
-    # * *iPluginName* (_String_): Name of the plugin to access
-    # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *OnlyIfExtDepsResolved* (_Boolean_): Do we return the plugin only if there is no need to install external dependencies ? [optional = false]
-    # ** *RDIInstaller* (<em>RDI::Installer</em>): The RDI installer if available, or nil otherwise [optional = nil]
-    # ** *RDIContextModifiers* (<em>map<String,list<[String,Object]>></em>): The map of context modifiers to be filled by the RDI installer if specified, or nil if ignored [optional = nil]
-    # * *CodeBlock*: The code called when the plugin is found:
-    # ** *ioPlugin* (_Object_): The corresponding plugin
-    def accessPlugin(iCategoryName, iPluginName, iParameters = {})
-      $rUtilAnts_Plugins_Manager.accessPlugin(iCategoryName, iPluginName, iParameters) do |ioPlugin|
-        yield(ioPlugin)
+      # Constructor
+      def initialize
+        init_plugins
       end
+
     end
 
-    # Clear the registered plugins
-    def clearPlugins
-      $rUtilAnts_Plugins_Manager.clearPlugins
-    end
-
-    # Get the list of plugin names of a given category
-    #
-    # Parameters:
-    # * *iCategoryName* (_String_): The category for which we want the plugin names list
-    # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *IncludeDisabled* (_Boolean_): Do we include disabled plugins ? [optional = false]
-    # Return:
-    # * <em>list<String></em>: The list of plugin names in this category
-    def getPluginNames(iCategoryName, iParameters = {})
-      return $rUtilAnts_Plugins_Manager.getPluginNames(iCategoryName, iParameters)
-    end
-
-    # Get the map of plugins descriptions, indexed with plugin names
-    #
-    # Parameters:
-    # * *iCategoryName* (_String_): The category for which we want the plugin names list
-    # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *IncludeDisabled* (_Boolean_): Do we include disabled plugins ? [optional = false]
-    # Return:
-    # * <em>map<String,map<Symbol,Object>></em>: The map of plugin descriptions per plugin name
-    def getPluginsDescriptions(iCategoryName, iParameters = {})
-      return $rUtilAnts_Plugins_Manager.getPluginsDescriptions(iCategoryName, iParameters)
+    # Initialize a plugins singleton
+    def self.install_plugins_on_object
+      require 'rUtilAnts/SingletonProxy'
+      RUtilAnts::make_singleton_proxy(RUtilAnts::Plugins::PluginsInterface, Object)
+      init_plugins
     end
 
   end

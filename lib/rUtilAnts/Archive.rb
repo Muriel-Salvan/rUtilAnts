@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -19,7 +19,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iPassword* (_String_): Password encrypting data
       # * *iSalt* (_String_): Salt encoding data
       # * *oFile* (_IO_): The IO that will receive encrypted data
@@ -30,7 +30,7 @@ module RUtilAnts
 
       # Add a string to write
       #
-      # Parameters:
+      # Parameters::
       # * *iData* (_String_): The data to encrypt and write
       def <<(iData)
         # Add to the buffer
@@ -72,7 +72,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iPassword* (_String_): Password encrypting data
       # * *iSalt* (_String_): Salt encoding data
       # * *iFile* (_IO_): The IO that will send encrypted data
@@ -82,7 +82,7 @@ module RUtilAnts
 
       # Get the next string encrypted
       #
-      # Return:
+      # Return::
       # * _String_: The next string encrypted (or nil if none)
       def get
         rObject = nil
@@ -111,7 +111,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iPassword* (_String_): Password encrypting data
       # * *iSalt* (_String_): Salt encoding data
       # * *oFile* (_IO_): The IO that will receive encrypted data
@@ -121,7 +121,7 @@ module RUtilAnts
 
       # Add an object to write
       #
-      # Parameters:
+      # Parameters::
       # * *iObject* (_Object_): The object to write
       def <<(iObject)
         lStrType = nil
@@ -152,7 +152,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iPassword* (_String_): Password encrypting data
       # * *iSalt* (_String_): Salt encoding data
       # * *iFile* (_IO_): The IO that will send encrypted data
@@ -163,7 +163,7 @@ module RUtilAnts
 
       # Get the next object encrypted
       #
-      # Return:
+      # Return::
       # * _Object_: The next object encrypted (or nil if none)
       def get
         rObject = nil
@@ -201,7 +201,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iPassword* (_String_): Password encrypting data
       # * *iSalt* (_String_): Salt encoding data
       # * *oFile* (_IO_): The IO that will receive encrypted data
@@ -220,9 +220,9 @@ module RUtilAnts
 
       # Add a single file to write
       #
-      # Parameters:
+      # Parameters::
       # * *iFileName* (_String_): File to add
-      def addFile(iFileName)
+      def add_file(iFileName)
         lFileSize = File.size(iFileName)
         @LstFiles << [ iFileName, lFileSize ]
         @TotalSize += lFileSize
@@ -230,9 +230,9 @@ module RUtilAnts
 
       # Add a directory with all its recursive content
       #
-      # Parameters:
+      # Parameters::
       # * *iDirName* (_String_): Name of the directory
-      def addDir(iDirName)
+      def add_dir(iDirName)
         lEmpty = true
         lRealDir = iDirName
         if (iDirName == '')
@@ -247,9 +247,9 @@ module RUtilAnts
               lCompleteFileName = iFileName
             end
             if (File.directory?(lCompleteFileName))
-              addDir(lCompleteFileName)
+              add_dir(lCompleteFileName)
             else
-              addFile(lCompleteFileName)
+              add_file(lCompleteFileName)
             end
           end
         end
@@ -260,26 +260,26 @@ module RUtilAnts
 
       # Add a files filter
       #
-      # Parameters:
+      # Parameters::
       # * *iFilesFilter* (_String_): The files filter, to be used with glob
-      def addFiles(iFilesFilter)
+      def add_files(iFilesFilter)
         Dir.glob(iFilesFilter).each do |iFileName|
           if (!File.directory?(iFileName))
-            addFile(iFileName)
+            add_file(iFileName)
           end
         end
       end
 
       # Dump files to write on screen
       def dump
-        logMsg "#{@EmptyDirs.size} empty directories:"
+        log_msg "#{@EmptyDirs.size} empty directories:"
         @EmptyDirs.each_with_index do |iDirName, iIdxDir|
-          logMsg "* [#{iIdxDir}]: #{iDirName}"
+          log_msg "* [#{iIdxDir}]: #{iDirName}"
         end
-        logMsg "#{@LstFiles.size} files (#{@TotalSize} bytes):"
+        log_msg "#{@LstFiles.size} files (#{@TotalSize} bytes):"
         @LstFiles.each_with_index do |iFileInfo, iIdxFile|
           iFileName, iFileSize = iFileInfo
-          logMsg "* [#{iIdxFile}]: #{iFileName} (#{iFileSize} bytes)"
+          log_msg "* [#{iIdxFile}]: #{iFileName} (#{iFileSize} bytes)"
         end
       end
 
@@ -295,7 +295,7 @@ module RUtilAnts
           if (iFileSize % FILE_BUFFER_SIZE != 0)
             lNbrChunks += 1
           end
-          logDebug "Writing file #{iFileName} (#{iFileSize} bytes, #{lNbrChunks} chunks) ..."
+          log_debug "Writing file #{iFileName} (#{iFileSize} bytes, #{lNbrChunks} chunks) ..."
           @ObjectWriter << [ iFileName, lNbrChunks ]
           File.open(iFileName, 'rb') do |iFile|
             lNbrChunks.times do |iIdxChunk|
@@ -316,7 +316,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iPassword* (_String_): Password encrypting data
       # * *iSalt* (_String_): Salt encoding data
       # * *iFile* (_IO_): The IO that will send encrypted data
@@ -336,7 +336,7 @@ module RUtilAnts
         lDecodedSize = 0
         lNbrFiles.times do |iIdxFile|
           lFileName, lNbrChunks = @ObjectReader.get
-          logDebug "Reading file #{lFileName} (#{lNbrChunks} chunks) ..."
+          log_debug "Reading file #{lFileName} (#{lNbrChunks} chunks) ..."
           FileUtils::mkdir_p(File.dirname(lFileName))
           File.open(lFileName, 'wb') do |oFile|
             lNbrChunks.times do |iIdxChunk|

@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -7,17 +7,14 @@ module RUtilAnts
 
   module URLCache
 
-    # Class that caches every access to a URI (local file name, http, data...).
-    # This ensures just that several files are instantiated just once.
-    # For local files, it takes into account the file modification date/time to know if the Wx::Bitmap file has to be refreshed.
-    class URLCache
+    # Exception for reporting server down errors.
+    class ServerDownError < RuntimeError
+    end
 
-      # Exception for reporting server down errors.
-      class ServerDownError < RuntimeError
-      end
+    module URLCacheInterface
 
       # Constructor
-      def initialize
+      def init_url_cache
         # Map of known contents, interpreted in many flavors
         # map< Integer, [ Integer, Object ] >
         # map< URL's hash, [ CRC, Content ] >
@@ -35,32 +32,32 @@ module RUtilAnts
       # * file:// protocol
       # It also handles redirections or zipped files
       #
-      # Parameters:
+      # Parameters::
       # * *iURL* (_String_): The URL
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *:ForceLoad* (_Boolean_): Do we force to refresh the cache ? [optional = false]
-      # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
-      # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
-      # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
+      #   * *:force_load* (_Boolean_): Do we force to refresh the cache ? [optional = false]
+      #   * *:follow_redirections* (_Boolean_): Do we follow redirections ? [optional = true]
+      #   * *:nbr_redirections_allowed* (_Integer_): Number of redirections allowed [optional = 10]
+      #   * *:local_file_access* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
       # * _CodeBlock_: The code returning the object corresponding to the content:
-      # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
-      # ** Returns:
-      # ** _Object_: Object read from the content, or nil in case of error
-      # ** _Exception_: The error encountered, or nil in case of success
-      # Return:
+      #   * *iContent* (_String_): File content, or file name if :local_file_access was true
+      #   * Return::
+      #   * _Object_: Object read from the content, or nil in case of error
+      #   * _Exception_: The error encountered, or nil in case of success
+      # Return::
       # * <em>Object</em>: The corresponding URL content, or nil in case of failure
       # * _Exception_: The error, or nil in case of success
-      def getURLContent(iURL, iParameters = {})
+      def get_url_content(iURL, iParameters = {})
         rObject = nil
         rError = nil
 
         # Parse parameters
-        lForceLoad = iParameters[:ForceLoad]
+        lForceLoad = iParameters[:force_load]
         if (lForceLoad == nil)
           lForceLoad = false
         end
         # Get the URL handler corresponding to this URL
-        lURLHandler = getURLHandler(iURL)
+        lURLHandler = get_url_handler(iURL)
         lServerID = lURLHandler.getServerID
         if (@HostsDown.has_key?(lServerID))
           rError = ServerDownError.new("Server #{iURL} is currently down.")
@@ -76,7 +73,7 @@ module RUtilAnts
             @URLs[lURLHash] = nil
             # Get the object
             lObject = nil
-            lAccessError = accessFile(iURL, iParameters.merge(:URLHandler => lURLHandler)) do |iContent, iBaseName|
+            lAccessError = access_file(iURL, iParameters.merge(:url_handler => lURLHandler)) do |iContent, iBaseName|
               lObject, rError = yield(iContent)
             end
             if (lAccessError != nil)
@@ -105,39 +102,25 @@ module RUtilAnts
 
     end
 
-    # Initialize a global cache
-    def self.initializeURLCache
-      $rUtilAnts_URLCache = URLCache.new
-      Object.module_eval('include RUtilAnts::URLCache')
+    # Class that caches every access to a URI (local file name, http, data...).
+    # This ensures just that several files are instantiated just once.
+    # For local files, it takes into account the file modification date/time to know if the Wx::Bitmap file has to be refreshed.
+    class URLCache
+
+      include URLCacheInterface
+
+      # Constructor
+      def initialize
+        init_url_cache
+      end
+
     end
 
-    # Get a content from a URL.
-    # Here are the different formats the URL can have:
-    # * Local file name
-    # * http/https/ftp/ftps:// protocols
-    # * data:image URI
-    # * file:// protocol
-    # It also handles redirections or zipped files
-    #
-    # Parameters:
-    # * *iURL* (_String_): The URL
-    # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *:ForceLoad* (_Boolean_): Do we force to refresh the cache ? [optional = false]
-    # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
-    # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
-    # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itself will be given the code block. [optional = false]
-    # * _CodeBlock_: The code returning the object corresponding to the content:
-    # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
-    # ** Returns:
-    # ** _Object_: Object read from the content, or nil in case of error
-    # ** _Exception_: The error encountered, or nil in case of success
-    # Return:
-    # * <em>Object</em>: The corresponding URL content, or nil in case of failure
-    # * _Exception_: The error, or nil in case of success
-    def getURLContent(iURL, iParameters = {})
-      return $rUtilAnts_URLCache.getURLContent(iURL, iParameters) do |iContent|
-        next yield(iContent)
-      end
+    # Initialize a global cache
+    def self.install_url_cache_on_object
+      require 'rUtilAnts/SingletonProxy'
+      RUtilAnts::make_singleton_proxy(RUtilAnts::URLCache::URLCacheInterface, Object)
+      init_url_cache
     end
 
   end

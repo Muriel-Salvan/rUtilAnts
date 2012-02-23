@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -12,10 +12,10 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iParent* (<em>Wx::Window</em>): The parent
       # * *iMsg* (_String_): The bug message
-      # * *iBugTrackerURL* (_String_): The Bug tracker URL
+      # * *iBugTrackerURL* (_String_): The Bug tracker URL (can be nil)
       def initialize(iParent, iMsg, iBugTrackerURL)
         super(iParent,
           :title => 'Bug',
@@ -46,7 +46,7 @@ Thanks.",
         lBSend = Wx::Button.new(self, Wx::ID_ANY, 'Send Bug report')
         lHCTrackerURL = Wx::HyperlinkCtrl.new(self, Wx::ID_ANY, 'Bug tracker', iBugTrackerURL,
           :style => Wx::NO_BORDER|Wx::HL_ALIGN_CENTRE|Wx::HL_CONTEXTMENU
-        )
+        ) if (iBugTrackerURL != nil)
 
         # Put everything in sizers
         lMainSizer = Wx::BoxSizer.new(Wx::VERTICAL)
@@ -65,7 +65,7 @@ Thanks.",
         lTopSizer.add_item(lTopRightSizer, :flag => Wx::GROW, :proportion => 1)
 
         lBottomSizer = Wx::BoxSizer.new(Wx::HORIZONTAL)
-        lBottomSizer.add_item(lHCTrackerURL, :flag => Wx::ALIGN_CENTRE, :proportion => 0)
+        lBottomSizer.add_item(lHCTrackerURL, :flag => Wx::ALIGN_CENTRE, :proportion => 0) if (iBugTrackerURL != nil)
         lBottomSizer.add_item([8,0], :proportion => 1)
         lBottomSizer.add_item(lBSend, :flag => Wx::ALIGN_CENTRE, :proportion => 0)
         lBottomSizer.add_item(lBClose, :flag => Wx::ALIGN_CENTRE, :proportion => 0)

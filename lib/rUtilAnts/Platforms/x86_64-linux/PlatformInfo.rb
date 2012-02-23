@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -7,12 +7,12 @@ module RUtilAnts
 
   module Platform
 
-    class PlatformInfo
+    module PlatformInfo
 
       # Return the ID of the OS
       # Applications may adapt their behavior based on it.
       #
-      # Return:
+      # Return::
       # * _Integer_: OS ID
       def os
         return OS_LINUX
@@ -20,7 +20,7 @@ module RUtilAnts
 
       # Return the list of directories where we look for executables
       #
-      # Return:
+      # Return::
       # * <em>list<String></em>: List of directories
       def getSystemExePath
         return ENV['PATH'].split(':')
@@ -28,7 +28,7 @@ module RUtilAnts
 
       # Set the list of directories where we look for executables
       #
-      # Parameters:
+      # Parameters::
       # * *iNewDirsList* (<em>list<String></em>): List of directories
       def setSystemExePath(iNewDirsList)
         ENV['PATH'] = iNewDirsList.join(':')
@@ -37,7 +37,7 @@ module RUtilAnts
       # Return the list of file extensions that might be discretely happened to executable files.
       # This is the optional extensions that can be happened when invoked from a terminal.
       #
-      # Return:
+      # Return::
       # * <em>list<String></em>: List of extensions (including .)
       def getDiscreteExeExtensions
         return []
@@ -45,7 +45,7 @@ module RUtilAnts
 
       # Return the list of directories where we look for libraries
       #
-      # Return:
+      # Return::
       # * <em>list<String></em>: List of directories
       def getSystemLibsPath
         rList = ENV['PATH'].split(':')
@@ -59,7 +59,7 @@ module RUtilAnts
 
       # Set the list of directories where we look for libraries
       #
-      # Parameters:
+      # Parameters::
       # * *iNewDirsList* (<em>list<String></em>): List of directories
       def setSystemLibsPath(iNewDirsList)
         ENV['LD_LIBRARY_PATH'] = iNewDirsList.join(':')
@@ -67,7 +67,7 @@ module RUtilAnts
 
       # This method sends a message (platform dependent) to the user, without the use of wxruby
       #
-      # Parameters:
+      # Parameters::
       # * *iMsg* (_String_): The message to display
       def sendMsg(iMsg)
         # TODO: Handle case of xmessage not installed
@@ -84,10 +84,10 @@ module RUtilAnts
       # Execute a Shell command.
       # Do not wait for its termination.
       #
-      # Parameters:
+      # Parameters::
       # * *iCmd* (_String_): The command to execute
       # * *iInTerminal* (_Boolean_): Do we execute this command in a separate terminal ?
-      # Return:
+      # Return::
       # * _Exception_: Error, or nil if success
       def execShellCmdNoWait(iCmd, iInTerminal)
         rException = nil
@@ -110,9 +110,9 @@ module RUtilAnts
 
       # Execute a given URL to be launched in a browser
       #
-      # Parameters:
+      # Parameters::
       # * *iURL* (_String_): The URL to launch
-      # Return:
+      # Return::
       # * _String_: Error message, or nil if success
       def launchURL(iURL)
         rError = nil
@@ -128,7 +128,7 @@ module RUtilAnts
 
       # Get file extensions specifics to executable files
       #
-      # Return:
+      # Return::
       # * <em>list<String></em>: List of extensions (including . character). It can be empty.
       def getExecutableExtensions
         return []
@@ -136,10 +136,41 @@ module RUtilAnts
 
       # Get prohibited characters from file names
       #
-      # Return:
+      # Return::
       # * _String_: String of prohibited characters in file names
       def getProhibitedFileNamesCharacters
         return '/'
+      end
+
+      # Create a shortcut (ln -s on Cygwin/Unix systems, a .lnk file on Windows systems)
+      #
+      # Parameters::
+      # * *iSrc* (_String_): The source file
+      # * *iDst* (_String_): The destination file
+      def createShortcut(iSrc, iDst)
+        require 'fileutils'
+        FileUtils::ln_s(iSrc, iDst)
+      end
+
+      # Get the name of a real file name, pointed by a shortcut.
+      # On Windows systems, it will be the target of the lnk file.
+      #
+      # Parameters::
+      # * *iShortcutName* (_String_): Name of the shortcut (same name used by createShortcut). Don't use OS specific extensions in this name (no .lnk).
+      # Return::
+      # * _String_: The real file name pointed by this shortcut
+      def followShortcut(iShortcutName)
+        return File.readlink(iShortcutName)
+      end
+
+      # Get the real file name of a shortcut
+      #
+      # Parameters::
+      # * *iDst* (_String_): The destination file that will host the shortcut
+      # Return::
+      # * _String_: The real shortcut file name
+      def getShortcutFileName(iDst)
+        return iDst
       end
 
     end

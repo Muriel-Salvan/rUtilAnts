@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -14,7 +14,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *ioImageList* (<em>Wx::ImageList</em>): The image list this manager will handle
       # * *iWidth* (_Integer_): The images width
       # * *iHeight* (_Integer_): The images height
@@ -30,7 +30,7 @@ module RUtilAnts
 
       # Get the image index for a given image ID
       #
-      # Parameters:
+      # Parameters::
       # * *iID* (_Object_): Id of the image
       # * *CodeBlock*: The code that will be called if the image ID is unknown. This code has to return a Wx::Bitmap object, representing the bitmap for the given image ID.
       def getImageIndex(iID)
@@ -65,15 +65,15 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iParentWindow* (<em>Wx::Window</em>): Parent window
       # * *iCodeToExecute* (_Proc_): The code to execute that will update the progression
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *:Cancellable* (_Boolean_): Can we cancel this dialog ? [optional = false]
-      # ** *:Title* (_String_): Caption of the progress dialog [optional = '']
-      # ** *:Icon* (<em>Wx::Bitmap</em>): Icon of the progress dialog [optional = nil]
+      #   * *:cancellable* (_Boolean_): Can we cancel this dialog ? [optional = false]
+      #   * *:title* (_String_): Caption of the progress dialog [optional = '']
+      #   * *:icon* (<em>Wx::Bitmap</em>): Icon of the progress dialog [optional = nil]
       def initialize(iParentWindow, iCodeToExecute, iParameters = {})
-        lCancellable = iParameters[:Cancellable]
+        lCancellable = iParameters[:cancellable]
         if (lCancellable == nil)
           lCancellable = false
         end
@@ -158,7 +158,7 @@ module RUtilAnts
 
       # Set the progress range
       #
-      # Parameters:
+      # Parameters::
       # * *iRange* (_Integer_): The progress range
       def setRange(iRange)
         @GProgress.range = iRange
@@ -171,7 +171,7 @@ module RUtilAnts
 
       # Set the progress value
       #
-      # Parameters:
+      # Parameters::
       # * *iValue* (_Integer_): The progress value
       def setValue(iValue)
         @GProgress.value = iValue
@@ -180,7 +180,7 @@ module RUtilAnts
 
       # Increment the progress value
       #
-      # Parameters:
+      # Parameters::
       # * *iIncrement* (_Integer_): Value to increment [optional = 1]
       def incValue(iIncrement = 1)
         @GProgress.value += iIncrement
@@ -189,7 +189,7 @@ module RUtilAnts
 
       # Increment the progress range
       #
-      # Parameters:
+      # Parameters::
       # * *iIncrement* (_Integer_): Value to increment [optional = 1]
       def incRange(iIncrement = 1)
         if (@Determined)
@@ -219,7 +219,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iParentWindow* (<em>Wx::Window</em>): Parent window
       # * *iCodeToExecute* (_Proc_): The code to execute that will update the progression
       # * *iText* (_String_): The text to display
@@ -231,7 +231,7 @@ module RUtilAnts
 
       # Get the panel to display as title
       #
-      # Return:
+      # Return::
       # * <em>Wx::Panel</em>: The panel to use as a title
       def getTitlePanel
         rPanel = Wx::Panel.new(self)
@@ -249,7 +249,7 @@ module RUtilAnts
 
       # Set the text
       #
-      # Parameters:
+      # Parameters::
       # * *iText* (_String_): The text
       def setText(iText)
         @STText.label = iText
@@ -264,7 +264,7 @@ module RUtilAnts
 
       # Constructor
       #
-      # Parameters:
+      # Parameters::
       # * *iParentWindow* (<em>Wx::Window</em>): Parent window
       # * *iCodeToExecute* (_Proc_): The code to execute that will update the progression
       # * *iBitmap* (<em>Wx::Bitmap</em>): The bitmap to display (can be nil)
@@ -276,7 +276,7 @@ module RUtilAnts
 
       # Get the panel to display as title
       #
-      # Return:
+      # Return::
       # * <em>Wx::Panel</em>: The panel to use as a title
       def getTitlePanel
         rPanel = Wx::Panel.new(self)
@@ -298,7 +298,7 @@ module RUtilAnts
 
       # Set the bitmap
       #
-      # Parameters:
+      # Parameters::
       # * *iBitmap* (<em>Wx::Bitmap</em>): The bitmap
       def setBitmap(iBitmap)
         @SBBitmap.bitmap = iBitmap
@@ -322,7 +322,7 @@ module RUtilAnts
 
       # Register a given timer
       #
-      # Parameters:
+      # Parameters::
       # * *iTimer* (<em>Wx::Timer</em>): The timer to register
       def registerTimer(iTimer)
         @Timers << iTimer
@@ -330,9 +330,9 @@ module RUtilAnts
 
       # Unregister a given timer
       #
-      # Parameters:
+      # Parameters::
       # * *iTimer* (<em>Wx::Timer</em>): The timer to unregister
-      # Return:
+      # Return::
       # * _Boolean_: Was the Timer registered ?
       def unregisterTimer(iTimer)
         rFound = false
@@ -384,11 +384,11 @@ module RUtilAnts
 
     # Get a bitmap resized to a given size if it differs from it
     #
-    # Parameters:
+    # Parameters::
     # * *iBitmap* (<em>Wx::Bitmap</em>): The original bitmap
     # * *iWidth* (_Integer_): The width of the resized bitmap
     # * *iHeight* (_Integer_): The height of the resized bitmap
-    # Return:
+    # Return::
     # * <em>Wx::Bitmap</em>: The resized bitmap (can be the same object as iBitmap)
     def getResizedBitmap(iBitmap, iWidth, iHeight)
       rResizedBitmap = iBitmap
@@ -403,13 +403,13 @@ module RUtilAnts
 
     # Display a dialog in modal mode, ensuring it is destroyed afterwards.
     #
-    # Parameters:
+    # Parameters::
     # * *iDialogClass* (_class_): Class of the dialog to display
     # * *iParentWindow* (<em>Wx::Window</em>): Parent window (can be nil)
     # * *iParameters* (...): List of parameters to give the constructor
     # * *CodeBlock*: The code called once the dialog has been displayed and modally closed
-    # ** *iModalResult* (_Integer_): Modal result
-    # ** *iDialog* (<em>Wx::Dialog</em>): The dialog
+    #   * *iModalResult* (_Integer_): Modal result
+    #   * *iDialog* (<em>Wx::Dialog</em>): The dialog
     def showModal(iDialogClass, iParentWindow, *iParameters)
       # If the parent is nil, we fall into a buggy behaviour in the case of GC enabled:
       # * If we destroy the window after show_modal, random core dumps occur in the application
@@ -436,18 +436,18 @@ module RUtilAnts
     # If no type has been provided, it detects the type of icon based on the file extension.
     # Use URL caching.
     #
-    # Parameters:
+    # Parameters::
     # * *iFileName* (_String_): The file name
     # * *iIconIndex* (_Integer_): Specify the icon index (used by Windows for EXE/DLL/ICO...) [optional = nil]
     # * *iBitmapTypes* (_Integer_ or <em>list<Integer></em>): Bitmap/Icon type. Can be nil for autodetection. Can be the list of types to try. [optional = nil]
-    # Return:
+    # Return::
     # * <em>Wx::Bitmap</em>: The bitmap, or nil in case of failure
     # * _Exception_: The exception containing details about the error, or nil in case of success
     def getBitmapFromURL(iFileName, iIconIndex = nil, iBitmapTypes = nil)
       rReadBitmap = nil
       rReadError = nil
 
-      rReadBitmap, rReadError = getURLContent(iFileName, :LocalFileAccess => true) do |iRealFileName|
+      rReadBitmap, rReadError = get_url_content(iFileName, :local_file_access => true) do |iRealFileName|
         rBitmap = nil
         rError = nil
 
@@ -461,7 +461,7 @@ module RUtilAnts
             when '.CUR', '.ANI', '.EXE', '.DLL'
               lBitmapTypesToTry = [ Wx::BITMAP_TYPE_ICO ]
             else
-              logErr "Unable to determine the bitmap type corresponding to extension #{File.extname(iRealFileName).upcase}. Assuming ICO."
+              log_err "Unable to determine the bitmap type corresponding to extension #{File.extname(iRealFileName).upcase}. Assuming ICO."
               lBitmapTypesToTry = [ Wx::BITMAP_TYPE_ICO ]
             end
           end
@@ -515,12 +515,12 @@ module RUtilAnts
 
     # Setup a progress bar with some text in it and call code around it
     #
-    # Parameters:
+    # Parameters::
     # * *iParentWindow* (<em>Wx::Window</em>): The parent window
     # * *iText* (_String_): The text to display
     # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters (check RUtilAnts::GUI::ProgressDialog#initialize documentation):
     # * _CodeBlock_: The code called with the progress bar created:
-    # ** *ioProgressDlg* (<em>RUtilAnts::GUI::ProgressDialog</em>): The progress dialog
+    #   * *ioProgressDlg* (<em>RUtilAnts::GUI::ProgressDialog</em>): The progress dialog
     def setupTextProgress(iParentWindow, iText, iParameters = {}, &iCodeToExecute)
       showModal(TextProgressDialog, iParentWindow, iCodeToExecute, iText, iParameters) do |iModalResult, iDialog|
         # Nothing to do
@@ -529,12 +529,12 @@ module RUtilAnts
 
     # Setup a progress bar with some bitmap in it and call code around it
     #
-    # Parameters:
+    # Parameters::
     # * *iParentWindow* (<em>Wx::Window</em>): The parent window
     # * *iBitmap* (<em>Wx::Bitmap</em>): The bitmap to display
     # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters (check RUtilAnts::GUI::ProgressDialog#initialize documentation):
     # * _CodeBlock_: The code called with the progress bar created:
-    # ** *ioProgressDlg* (<em>RUtilAnts::GUI::ProgressDialog</em>): The progress dialog
+    #   * *ioProgressDlg* (<em>RUtilAnts::GUI::ProgressDialog</em>): The progress dialog
     def setupBitmapProgress(iParentWindow, iBitmap, iParameters = {}, &iCodeToExecute)
       showModal(BitmapProgressDialog, iParentWindow, iCodeToExecute, iBitmap, iParameters) do |iModalResult, iDialog|
         # Nothing to do
@@ -543,7 +543,7 @@ module RUtilAnts
 
     # Execute some code after some elapsed time.
     #
-    # Parameters:
+    # Parameters::
     # * *ioSafeTimersManager* (_SafeTimersManager_): The manager that handles this SafeTimer
     # * *iElapsedTime* (_Integer_): The elapsed time to wait before running the code
     # * _CodeBlock_: The code to execute
@@ -560,7 +560,7 @@ module RUtilAnts
 
     # Execute some code every some elapsed time.
     #
-    # Parameters:
+    # Parameters::
     # * *ioSafeTimersManager* (_SafeTimersManager_): The manager that handles this SafeTimer
     # * *iElapsedTime* (_Integer_): The elapsed time to wait before running the code
     # * _CodeBlock_: The code to execute

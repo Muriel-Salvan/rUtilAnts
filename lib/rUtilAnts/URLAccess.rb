@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2009 - 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -18,11 +18,10 @@ module RUtilAnts
     class RedirectionError < RuntimeError
     end
 
-    # Class
-    class Manager
+    module URLAccessInterface
 
       # Constructor
-      def initialize
+      def init_url_access
         # Get the map of plugins to read URLs
         # map< String, [ list<Regexp>, String ] >
         # map< PluginName, [ List of matching regexps, Plugin class name ] >
@@ -36,7 +35,7 @@ module RUtilAnts
               "RUtilAnts::URLCache::URLHandlers::#{lPluginName}"
             ]
           rescue Exception
-            logExc$!, "Error while requiring URLHandler plugin #{iFileName}"
+            log_exc$!, "Error while requiring URLHandler plugin #{iFileName}"
           end
         end
       end
@@ -45,27 +44,27 @@ module RUtilAnts
       # No cache.
       # It calls a code block with the binary content of the URL (or a local file name if required).
       #
-      # Parameters:
+      # Parameters::
       # * *iURL* (_String_): The URL (used to detect cyclic redirections)
       # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-      # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
-      # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
-      # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
-      # ** *:URLHandler* (_Object_): The URL handler, if it has already been instantiated, or nil otherwise [optional = nil]
+      #   * *:follow_redirections* (_Boolean_): Do we follow redirections ? [optional = true]
+      #   * *:nbr_redirections_allowed* (_Integer_): Number of redirections allowed [optional = 10]
+      #   * *:local_file_access* (_Boolean_): Do we need a local file to read the content from ? If not, the content itslef will be given the code block. [optional = false]
+      #   * *:url_handler* (_Object_): The URL handler, if it has already been instantiated, or nil otherwise [optional = nil]
       # * _CodeBlock_: The code returning the object corresponding to the content:
-      # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
-      # ** *iFileBaseName* (_String_): The base name the file could have. Useful to get file name extensions.
-      # ** Return:
-      # ** _Exception_: The error encountered, or nil in case of success
-      # Return:
+      #   * *iContent* (_String_): File content, or file name if :local_file_access was true
+      #   * *iFileBaseName* (_String_): The base name the file could have. Useful to get file name extensions.
+      #   * Return::
+      #   * _Exception_: The error encountered, or nil in case of success
+      # Return::
       # * _Exception_: The error encountered, or nil in case of success
-      def accessFile(iURL, iParameters = {})
+      def access_file(iURL, iParameters = {})
         rError = nil
 
         lFollowRedirections = iParameters[:lFollowRedirections]
-        lNbrRedirectionsAllowed = iParameters[:NbrRedirectionsAllowed]
-        lLocalFileAccess = iParameters[:LocalFileAccess]
-        lURLHandler = iParameters[:URLHandler]
+        lNbrRedirectionsAllowed = iParameters[:nbr_redirections_allowed]
+        lLocalFileAccess = iParameters[:local_file_access]
+        lURLHandler = iParameters[:url_handler]
         if (lFollowRedirections == nil)
           lFollowRedirections = true
         end
@@ -76,7 +75,7 @@ module RUtilAnts
           lLocalFileAccess = false
         end
         if (lURLHandler == nil)
-          lURLHandler = getURLHandler(iURL)
+          lURLHandler = get_url_handler(iURL)
         end
         # Get the content from the handler
         lContentFormat, lContent = lURLHandler.getContent(lFollowRedirections)
@@ -92,10 +91,10 @@ module RUtilAnts
           elsif (lFollowRedirections)
             # Follow the redirection if we want it
             lNewParameters = iParameters.clone
-            lNewParameters[:NbrRedirectionsAllowed] = lNbrRedirectionsAllowed - 1
+            lNewParameters[:nbr_redirections_allowed] = lNbrRedirectionsAllowed - 1
             # Reset the URL handler for the new parameters.
-            lNewParameters[:URLHandler] = nil
-            rError = accessFile(lContent, lNewParameters) do |iContent, iBaseName|
+            lNewParameters[:url_handler] = nil
+            rError = access_file(lContent, lNewParameters) do |iContent, iBaseName|
               yield(iContent, iBaseName)
             end
           else
@@ -155,11 +154,11 @@ module RUtilAnts
 
       # Get the URL handler corresponding to this URL
       #
-      # Parameters:
+      # Parameters::
       # * *iURL* (_String_): The URL
-      # Return:
+      # Return::
       # * _Object_: The URL handler
-      def getURLHandler(iURL)
+      def get_url_handler(iURL)
         rURLHandler = nil
 
         # Try out every regexp unless it matches.
@@ -187,44 +186,23 @@ module RUtilAnts
 
     end
 
-    # Initialize a global plugins cache
-    def self.initializeURLAccess
-      $rUtilAnts_URLAccess_Manager = Manager.new
-      Object.module_eval('include RUtilAnts::URLAccess')
-    end
+    # A class giving access to the URL access functionnality
+    class Manager
 
-    # Access the content of a URL.
-    # No cache.
-    # It calls a code block with the binary content of the URL (or a local file name if required).
-    #
-    # Parameters:
-    # * *iURL* (_String_): The URL (used to detect cyclic redirections)
-    # * *iParameters* (<em>map<Symbol,Object></em>): Additional parameters:
-    # ** *:FollowRedirections* (_Boolean_): Do we follow redirections ? [optional = true]
-    # ** *:NbrRedirectionsAllowed* (_Integer_): Number of redirections allowed [optional = 10]
-    # ** *:LocalFileAccess* (_Boolean_): Do we need a local file to read the content from ? If not, the content itself will be given the code block. [optional = false]
-    # ** *:URLHandler* (_Object_): The URL handler, if it has already been instantiated, or nil otherwise [optional = nil]
-    # * _CodeBlock_: The code returning the object corresponding to the content:
-    # ** *iContent* (_String_): File content, or file name if :LocalFileAccess was true
-    # ** *iFileBaseName* (_String_): The base name the file could have. Useful to get file name extensions.
-    # ** Return:
-    # ** _Exception_: The error encountered, or nil in case of success
-    # Return:
-    # * _Exception_: The error encountered, or nil in case of success
-    def accessFile(iURL, iParameters = {})
-      return $rUtilAnts_URLAccess_Manager.accessFile(iURL, iParameters) do |iContent, iBaseName|
-        yield(iContent, iBaseName)
+      include URLAccessInterface
+
+      # Constructor
+      def initialize
+        init_url_access
       end
+
     end
 
-    # Get the URL handler corresponding to this URL
-    #
-    # Parameters:
-    # * *iURL* (_String_): The URL
-    # Return:
-    # * _Object_: The URL handler
-    def getURLHandler(iURL)
-      return $rUtilAnts_URLAccess_Manager.getURLHandler(iURL)
+    # Initialize a global plugins cache
+    def self.install_url_access_on_object
+      require 'rUtilAnts/SingletonProxy'
+      RUtilAnts::make_singleton_proxy(RUtilAnts::URLAccess::URLAccessInterface, Object)
+      init_url_access
     end
 
   end

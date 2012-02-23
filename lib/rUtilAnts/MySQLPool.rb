@@ -1,5 +1,5 @@
 #--
-# Copyright (c) 2011 Muriel Salvan (murielsalvan@users.sourceforge.net)
+# Copyright (c) 2011 - 2012 Muriel Salvan (muriel@x-aeon.com)
 # Licensed under the terms specified in LICENSE file. No warranty is provided.
 #++
 
@@ -17,7 +17,7 @@ module RUtilAnts
     end
 
     # Set these methods into the Object namespace
-    def self.initializeMySQLPool
+    def self.install_mysql_pool_on_object
       Object.module_eval('include RUtilAnts::MySQLPool')
     end
 
@@ -26,15 +26,15 @@ module RUtilAnts
     # Reuse existing connections.
     # If the given password is nil, we force the reuse of an existing connection.
     #
-    # Parameters:
+    # Parameters::
     # * *iHost* (_String_): The host to connect to
     # * *iDBName* (_String_): The MySQL database name to connect to
     # * *iUser* (_String_): The user
     # * *iPassword* (_String_): The password. If nil, this will only try to reuse an existing connection [optional = nil]
-    # Return:
+    # Return::
     # * _Exception_: An error, or nil in case of success
     # * _MySQL_: The MySQL connection, or nil in case of failure
-    def connectToMySQL(iHost, iDBName, iUser, iPassword = nil)
+    def connect_to_mysql(iHost, iDBName, iUser, iPassword = nil)
       rError = nil
       rMySQL = nil
 
@@ -59,7 +59,7 @@ module RUtilAnts
 #            lMySQL.options(Mysql::OPT_WRITE_TIMEOUT, 28800)
 #            lMySQL.real_connect(iHost, iUser, iPassword, iDBName)
           rescue Exception
-            logErr "Error while creating MySQL connection to #{lDBKey.inspect}: #{$!}.\n#{$!.backtrace.join("\n")}"
+            log_err "Error while creating MySQL connection to #{lDBKey.inspect}: #{$!}.\n#{$!.backtrace.join("\n")}"
             rError = $!
             lMySQL = nil
           end
@@ -80,11 +80,11 @@ module RUtilAnts
       return rError, rMySQL
     end
 
-    # Close a MySQL connection created with connectToMySQL
+    # Close a MySQL connection created with connect_to_mysql
     #
-    # Parameters:
+    # Parameters::
     # * *iMySQLConnection* (_MySQL_): The MySQL connection to close
-    def closeMySQL(iMySQLConnection)
+    def close_mysql(iMySQLConnection)
       # Find the connection
       if (defined?($RUtilAnts_MySQLPool_Pool) == nil)
         $RUtilAnts_MySQLPool_Pool = {}
@@ -100,24 +100,24 @@ module RUtilAnts
 
     # Setup a MySQL connection, and ensure it is closed once the client code ends.
     #
-    # Parameters:
+    # Parameters::
     # * *iHost* (_String_): The host to connect to
     # * *iDBName* (_String_): The MySQL database name to connect to
     # * *iUser* (_String_): The user
     # * *iPassword* (_String_): The password. If nil, this will only try to reuse an existing connection [optional = nil]
     # * *CodeBlock*: The code executed with the MySQL connection
-    # ** *iMySQL* (_MySQL_): The MySQL connection
-    # Return:
+    #   * *iMySQL* (_MySQL_): The MySQL connection
+    # Return::
     # * _Exception_: An error, or nil in case of success
-    def setupMySQLConnection(iHost, iDBName, iUser, iPassword = nil)
+    def setup_mysql_connection(iHost, iDBName, iUser, iPassword = nil)
       rError = nil
 
-      rError, lMySQL = connectToMySQL(iHost, iDBName, iUser, iPassword)
+      rError, lMySQL = connect_to_mysql(iHost, iDBName, iUser, iPassword)
       if (rError == nil)
         begin
           yield(lMySQL)
         ensure
-          closeMySQL(lMySQL)
+          close_mysql(lMySQL)
         end
       end
 
@@ -127,16 +127,16 @@ module RUtilAnts
     # Get a prepared statement for a given SQL string of a given MySQL connection.
     # Use the cache of prepared statements.
     #
-    # Parameters:
+    # Parameters::
     # * *iMySQLConnection* (_MySQL_): The MySQL connection
     # * *iStrSQL* (_String_): The SQL statement to prepare
     # * *iAdditionalOptions* (<em>map<Symbol,Object></em>): Additional options [optional = {}]
-    # ** *:LeaveOpen* (_Boolean_): Do we NOT close the opened statement once it is not used anymore ? [optional = false]
-    # Return:
+    #   * *:leave_open* (_Boolean_): Do we NOT close the opened statement once it is not used anymore ? [optional = false]
+    # Return::
     # * <em>MySQL::Statement</em>: The MySQL statement
-    def getPreparedStatement(iMySQLConnection, iStrSQL, iAdditionalOptions = {})
+    def get_prepared_statement(iMySQLConnection, iStrSQL, iAdditionalOptions = {})
       # Parse options
-      lLeaveOpen = iAdditionalOptions[:LeaveOpen] || false
+      lLeaveOpen = iAdditionalOptions[:leave_open] || false
       # Find the prepared statements set
       lPreparedStatements = $RUtilAnts_MySQLPool_Pool[findMySQLConnectionKey(iMySQLConnection)][2]
       if (lPreparedStatements[iStrSQL] == nil)
@@ -157,12 +157,12 @@ module RUtilAnts
       return lPreparedStatements[iStrSQL][0]
     end
 
-    # Close a previously created prepared statement using getPreparedStatement.
+    # Close a previously created prepared statement using get_prepared_statement.
     #
-    # Parameters:
+    # Parameters::
     # * *iMySQLConnection* (_MySQL_): The MySQL connection
     # * *iPreparedStatement* (<em>MySQL::Statement</em>): The MySQL prepared statement
-    def closePreparedStatement(iMySQLConnection, iPreparedStatement)
+    def close_prepared_statement(iMySQLConnection, iPreparedStatement)
       lPreparedStatements = $RUtilAnts_MySQLPool_Pool[findMySQLConnectionKey(iMySQLConnection)][2]
       lFound = false
       lPreparedStatements.each do |iStrSQL, ioPreparedStatementInfo|
@@ -186,19 +186,19 @@ module RUtilAnts
 
     # Setup a prepared statement, and ensure it will be closed
     #
-    # Parameters:
+    # Parameters::
     # * *iMySQLConnection* (_MySQL_): The MySQL connection
     # * *iStrSQL* (_String_): The SQL statement to prepare
     # * *iAdditionalOptions* (<em>map<Symbol,Object></em>): Additional options [optional = {}]
-    # ** *:LeaveOpen* (_Boolean_): Do we NOT close the opened statement once it is not used anymore ? [optional = false]
+    #   * *:leave_open* (_Boolean_): Do we NOT close the opened statement once it is not used anymore ? [optional = false]
     # * *CodeBlock*: The code executed once the statement is prepared
-    # ** *iPreparedStatement* (<em>MySQL::Statement</em>): The prepared statement
-    def setupPreparedStatement(iMySQLConnection, iStrSQL, iAdditionalOptions = {})
-      lStatement = getPreparedStatement(iMySQLConnection, iStrSQL, iAdditionalOptions)
+    #   * *iPreparedStatement* (<em>MySQL::Statement</em>): The prepared statement
+    def setup_prepared_statement(iMySQLConnection, iStrSQL, iAdditionalOptions = {})
+      lStatement = get_prepared_statement(iMySQLConnection, iStrSQL, iAdditionalOptions)
       begin
         yield(lStatement)
       ensure
-        closePreparedStatement(iMySQLConnection, lStatement)
+        close_prepared_statement(iMySQLConnection, lStatement)
       end
     end
 
@@ -206,9 +206,9 @@ module RUtilAnts
 
     # Find the MySQL connection key
     #
-    # Parameters:
+    # Parameters::
     # * *iMySQLConnection* (_MySQL_): The MySQL connection
-    # Return:
+    # Return::
     # * _String_: Host name, or nil if none
     # * _String_: DB name
     # * _String_: User name
