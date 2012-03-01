@@ -5,24 +5,24 @@
 
 RubyPackager::ReleaseInfo.new.
   author(
-    :Name => 'Muriel Salvan',
-    :EMail => 'muriel@x-aeon.com',
-    :WebPageURL => 'http://murielsalvan.users.sourceforge.net'
+    :name => 'Muriel Salvan',
+    :email => 'muriel@x-aeon.com',
+    :web_page_url => 'http://murielsalvan.users.sourceforge.net'
   ).
   project(
-    :Name => 'rUtilAnts',
-    :WebPageURL => 'http://rutilants.sourceforge.net/',
-    :Summary => 'A collection of various utility libraries.',
-    :Description => 'rUtilAnts is used by several projects. It includes common standard code.',
-    :ImageURL => 'http://rutilants.sourceforge.net/wiki/images/c/c9/Logo.png',
-    :FaviconURL => 'http://rutilants.sourceforge.net/wiki/images/2/26/Favicon.png',
-    :SVNBrowseURL => 'http://rutilants.git.sourceforge.net/',
-    :DevStatus => 'Beta'
+    :name => 'rUtilAnts',
+    :web_page_url => 'http://rutilants.sourceforge.net/',
+    :summary => 'A collection of various utility libraries.',
+    :description => 'rUtilAnts is used by several projects. It includes common standard code.',
+    :image_url => 'http://rutilants.sourceforge.net/wiki/images/c/c9/Logo.png',
+    :favicon_url => 'http://rutilants.sourceforge.net/wiki/images/2/26/Favicon.png',
+    :browse_source_url => 'http://rutilants.git.sourceforge.net/',
+    :dev_status => 'Beta'
   ).
-  addCoreFiles( [
+  add_core_files( [
     'lib/**/*'
   ] ).
-  addAdditionalFiles( [
+  add_additional_files( [
     'README',
     'LICENSE',
     'AUTHORS',
@@ -30,15 +30,15 @@ RubyPackager::ReleaseInfo.new.
     'ChangeLog'
   ] ).
   gem(
-    :GemName => 'rUtilAnts',
-    :GemPlatformClassName => 'Gem::Platform::RUBY',
-    :RequirePath => 'lib',
-    :HasRDoc => true
+    :gem_name => 'rUtilAnts',
+    :gem_platform_class_name => 'Gem::Platform::RUBY',
+    :require_path => 'lib',
+    :has_rdoc => true
   ).
-  sourceForge(
-    :Login => 'murielsalvan',
-    :ProjectUnixName => 'rutilants'
+  source_forge(
+    :login => 'murielsalvan',
+    :project_unix_name => 'rutilants'
   ).
-  rubyForge(
-    :ProjectUnixName => 'rutilants'
+  ruby_forge(
+    :project_unix_name => 'rutilants'
   )
