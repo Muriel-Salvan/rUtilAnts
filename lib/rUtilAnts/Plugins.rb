@@ -130,7 +130,6 @@ module RUtilAnts
           # Don't load it now, but store it along with its description if it exists
           if (@Plugins[iCategory][lPluginName] == nil)
             # Check if we have a description
-            lDesc = lDescriptions[lPluginName]
             register_new_plugin(
               iCategory,
               lPluginName,
@@ -223,7 +222,7 @@ module RUtilAnts
                   # Load other plugins
                   lDesc[:PluginsDependencies].each do |iPluginInfo|
                     iPluginCategory, iPluginName = iPluginInfo
-                    lPlugin, lError = get_plugin_instance(iPluginCategory, iPluginName, iParameters)
+                    _, lError = get_plugin_instance(iPluginCategory, iPluginName, iParameters)
                     lSuccess = (lError == nil)
                     if (!lSuccess)
                       # Don't try further

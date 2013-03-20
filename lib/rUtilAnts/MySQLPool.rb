@@ -165,6 +165,7 @@ module RUtilAnts
     def close_prepared_statement(iMySQLConnection, iPreparedStatement)
       lPreparedStatements = $RUtilAnts_MySQLPool_Pool[findMySQLConnectionKey(iMySQLConnection)][2]
       lFound = false
+      lDelete = nil
       lPreparedStatements.each do |iStrSQL, ioPreparedStatementInfo|
         if (ioPreparedStatementInfo[0] == iPreparedStatement)
           # Found it
@@ -172,13 +173,14 @@ module RUtilAnts
             ioPreparedStatementInfo[1] -= 1
             if (ioPreparedStatementInfo[1] == 0)
               # Close it for real
-              ioPreparedStatementInfo[1].close
-              lPreparedStatements[iStrSQL] = nil
+              ioPreparedStatementInfo[0].close
+              lDelete = iStrSQL
             end
           end
           lFound = true
         end
       end
+      lPreparedStatements.delete(lDelete) if (lDelete != nil)
       if (!lFound)
         raise MissingPreparedStatementFromPoolError.new("Prepared statement #{iPreparedStatement.inspect} can't be found among the pool of MySQL connection #{iMySQLConnection.inspect}")
       end
