@@ -1,5 +1,13 @@
 = rUtilAnts Release History
 
+== 1.0.1.20130320 (Beta)
+
+* [Platform] Added missing platforms, works for JRuby and MacOS
+* [MySQLPool] Bug correction: Could not close connections correctly
+* [Plugins] Removed warning about unused variable
+* Updated Release file to last version of RubyPackager (1.1.0)
+* Use SSH key as authentication method
+
 == 1.0.0.20120223 (Beta)
 
 * Renamed public methods to match standard Ruby's conventions
