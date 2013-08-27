@@ -1,8 +1,3 @@
-#--
-# Copyright (c) 2010 - 2012 Muriel Salvan (muriel@x-aeon.com)
-# Licensed under the terms specified in LICENSE file. No warranty is provided.
-#++
-
 module RUtilAnts
 
   # This module defines a method to run a given Ruby's object and parameters in a separate process.

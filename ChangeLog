@@ -1,5 +1,9 @@
 = rUtilAnts Release History
 
+== 2.0.0.20130827 (Beta)
+
+* [Platform] New API for Platforms
+
 == 1.0.1.20130320 (Beta)
 
 * [Platform] Added missing platforms, works for JRuby and MacOS

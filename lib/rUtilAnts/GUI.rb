@@ -1,8 +1,3 @@
-#--
-# Copyright (c) 2009 - 2012 Muriel Salvan (muriel@x-aeon.com)
-# Licensed under the terms specified in LICENSE file. No warranty is provided.
-#++
-
 # WxRuby has to be loaded correctly in the environment before requiring this file
 
 module RUtilAnts
@@ -312,7 +307,7 @@ module RUtilAnts
     # Very handy for timers processing data that might be destroyed.
     # To be used with safeTimerAfter and safeTimerEvery.
     class SafeTimersManager
-      
+
       # Constructor
       def initialize
         # List of registered timers
@@ -503,7 +498,7 @@ module RUtilAnts
 
         return rBitmap, rError
       end
-      
+
       # Check if it is ok and the error set correctly
       if ((rReadBitmap == nil) and
           (rReadError == nil))
