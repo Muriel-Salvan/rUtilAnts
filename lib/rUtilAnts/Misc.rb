@@ -41,8 +41,8 @@ module RUtilAnts
     # Return::
     # * _String_: The correct file name
     def get_valid_file_name(iFileName)
-      if (defined?(getProhibitedFileNamesCharacters) != nil)
-        return iFileName.gsub(/[#{Regexp.escape(getProhibitedFileNamesCharacters)}]/, '_')
+      if (defined?(prohibited_file_names_chars) != nil)
+        return iFileName.gsub(/[#{Regexp.escape(prohibited_file_names_chars)}]/, '_')
       else
         return iFileName
       end
@@ -90,7 +90,7 @@ module RUtilAnts
             end
           end
           # Then, ensure the gem dependency
-          rError, lCMApplied, lIgnored, lUnresolved = lRDIInstaller.ensure_dependencies(
+          rError, _, lIgnored, lUnresolved = lRDIInstaller.ensure_dependencies(
             [
               RDI::Model::DependencyDescription.new('RubyZip').add_description( {
                 :Testers => [

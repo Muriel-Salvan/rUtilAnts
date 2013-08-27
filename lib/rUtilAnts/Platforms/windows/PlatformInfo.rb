@@ -22,7 +22,7 @@ module RUtilAnts
       #
       # Return::
       # * <em>list<String></em>: List of directories
-      def getSystemExePath
+      def system_exe_paths
         return ENV['PATH'].split(';')
       end
 
@@ -30,7 +30,7 @@ module RUtilAnts
       #
       # Parameters::
       # * *iNewDirsList* (<em>list<String></em>): List of directories
-      def setSystemExePath(iNewDirsList)
+      def set_system_exe_paths(iNewDirsList)
         ENV['PATH'] = iNewDirsList.join(';')
       end
 
@@ -39,7 +39,7 @@ module RUtilAnts
       #
       # Return::
       # * <em>list<String></em>: List of extensions (including .)
-      def getDiscreteExeExtensions
+      def discrete_exe_extensions
         rExtList = []
 
         ENV['PATHEXT'].split(';').each do |iExt|
@@ -53,7 +53,7 @@ module RUtilAnts
       #
       # Return::
       # * <em>list<String></em>: List of directories
-      def getSystemLibsPath
+      def system_lib_paths
         return ENV['PATH'].split(';')
       end
 
@@ -61,7 +61,7 @@ module RUtilAnts
       #
       # Parameters::
       # * *iNewDirsList* (<em>list<String></em>): List of directories
-      def setSystemLibsPath(iNewDirsList)
+      def set_system_lib_paths(iNewDirsList)
         ENV['PATH'] = iNewDirsList.join(';')
       end
 
@@ -69,7 +69,7 @@ module RUtilAnts
       #
       # Parameters::
       # * *iMsg* (_String_): The message to display
-      def sendMsg(iMsg)
+      def display_msg(iMsg)
         # iMsg must not be longer than 255 characters
         # \n must be escaped.
         if (iMsg.size > 255)
@@ -85,51 +85,38 @@ module RUtilAnts
       # Parameters::
       # * *iCmd* (_String_): The command to execute
       # * *iInTerminal* (_Boolean_): Do we execute this command in a separate terminal ?
-      # Return::
-      # * _Exception_: Error, or nil if success
-      def execShellCmdNoWait(iCmd, iInTerminal)
-        rException = nil
-
+      def exec_cmd_async(iCmd, iInTerminal)
         if (iInTerminal)
-          if (!system("start cmd /c #{iCmd}"))
-            rException = RuntimeError.new
-          end
+          raise "Error while executing \"start cmd /c #{iCmd}\": exit status #{$?.exitstatus}" if (!system("start cmd /c #{iCmd}"))
         else
-          begin
-            IO.popen(iCmd)
-          rescue Exception
-            rException = $!
-          end
+          IO.popen(iCmd)
         end
-
-        return rException
       end
 
       # Execute a given URL to be launched in a browser
       #
       # Parameters::
       # * *iURL* (_String_): The URL to launch
-      # Return::
-      # * _String_: Error message, or nil if success
-      def launchURL(iURL)
-        rError = nil
-
+      def os_open_url(iURL)
         # We must put " around the URL after the http:// prefix, as otherwise & symbol will not be recognized
-        lMatch = iURL.match(/^(http|https|ftp|ftps):\/\/(.*)$/)
-        if (lMatch == nil)
-          rError = "URL #{iURL} is not one of http://, https://, ftp:// or ftps://. Can't invoke it."
-        else
-          IO.popen("start #{lMatch[1]}://\"#{lMatch[2]}\"")
-        end
+        lMatch = iURL.match(/^([^:]+):\/\/(.*)$/)
+        raise "URL \"#{iURL}\" is not valid. Can't invoke it." if (lMatch == nil)
+        IO.popen("start #{lMatch[1]}://\"#{lMatch[2]}\"")
+      end
 
-        return rError
+      # Open a given file with the default OS application
+      #
+      # Parameters::
+      # * *file_name* (_String_): The file to open
+      def os_open_file(file_name)
+        IO.popen("start \"\" \"#{file_name}\"")
       end
 
       # Get file extensions specifics to executable files
       #
       # Return::
       # * <em>list<String></em>: List of extensions (including . character). It can be empty.
-      def getExecutableExtensions
+      def executables_ext
         rLstExt = [ '.exe', '.com', '.bat' ]
 
         # Use PATHEXT environment variable if possible
@@ -145,7 +132,7 @@ module RUtilAnts
       #
       # Return::
       # * _String_: String of prohibited characters in file names
-      def getProhibitedFileNamesCharacters
+      def prohibited_file_names_chars
         return '\\/:*?"<>|'
       end
 
@@ -154,9 +141,9 @@ module RUtilAnts
       # Parameters::
       # * *iSrc* (_String_): The source file
       # * *iDst* (_String_): The destination file
-      def createShortcut(iSrc, iDst)
+      def create_shortcut(iSrc, iDst)
         require 'win32/shortcut'
-        Win32::Shortcut.new(getShortcutFileName(iDst)) do |oShortcut|
+        Win32::Shortcut.new(get_shortcut_file_name(iDst)) do |oShortcut|
           oShortcut.path = File.expand_path(iSrc)
         end
       end
@@ -165,12 +152,12 @@ module RUtilAnts
       # On Windows systems, it will be the target of the lnk file.
       #
       # Parameters::
-      # * *iShortcutName* (_String_): Name of the shortcut (same name used by createShortcut). Don't use OS specific extensions in this name (no .lnk).
+      # * *iShortcutName* (_String_): Name of the shortcut (same name used by create_shortcut). Don't use OS specific extensions in this name (no .lnk).
       # Return::
       # * _String_: The real file name pointed by this shortcut
-      def followShortcut(iShortcutName)
+      def get_shortcut_target(iShortcutName)
         require 'win32/shortcut'
-        return Win32::Shortcut.open(getShortcutFileName(iShortcutName)).path
+        return Win32::Shortcut.open(get_shortcut_file_name(iShortcutName)).path
       end
 
       # Get the real file name of a shortcut
@@ -179,7 +166,7 @@ module RUtilAnts
       # * *iDst* (_String_): The destination file that will host the shortcut
       # Return::
       # * _String_: The real shortcut file name
-      def getShortcutFileName(iDst)
+      def get_shortcut_file_name(iDst)
         return "#{iDst}.lnk"
       end
 

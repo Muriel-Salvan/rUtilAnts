@@ -210,9 +210,9 @@ Stack:
           end
         else
           # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
-          if ((defined?(sendMsg) != nil) and
+          if ((defined?(display_msg) != nil) and
               (!@NoDialogs))
-            sendMsg("A bug has just occurred.
+            display_msg("A bug has just occurred.
 Normally you should never see this message, but this application is not bug-less.
 We are sorry for the inconvenience caused.
 If you want to help improving this application, please inform us of this bug:
@@ -251,10 +251,10 @@ Details:
             ) do |iModalResult, iDialog|
               # Nothing to do
             end
-          elsif ((defined?(sendMsg) != nil) and
+          elsif ((defined?(display_msg) != nil) and
                  (!@NoDialogs))
             # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
-            sendMsg(iMsg)
+            display_msg(iMsg)
           end
         else
           @ErrorsStack << iMsg
@@ -285,10 +285,10 @@ Details:
             ) do |iModalResult, iDialog|
               # Nothing to do
             end
-          elsif ((defined?(sendMsg) != nil) and
+          elsif ((defined?(display_msg) != nil) and
                  (!@NoDialogs))
             # Use normal platform dependent message, if the platform has been initialized (otherwise, stick to $stderr)
-            sendMsg(iMsg)
+            display_msg(iMsg)
           end
         else
           @MessagesStack << iMsg

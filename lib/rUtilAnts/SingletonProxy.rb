@@ -12,22 +12,20 @@ module RUtilAnts
   # * *oDstModule* (_Module_): Module that will encapsulate the singleton and route all public methods through that singleton
   def self.make_singleton_proxy(iSrcModule, oDstModule)
     lSrcModuleConstName = iSrcModule.name.gsub(/\W/,'_')
-
     # Create the singleton class
-    lSingletonClass = oDstModule.const_set("SingletonClassForModule__#{lSrcModuleConstName}", Class.new)
-    lSingletonClass.class_eval("include #{iSrcModule}")
-
-    # Instantiate it in the module
-    lSymSingletonVarName = "@@__SingletonForModule__#{lSrcModuleConstName}".to_sym
-    oDstModule.send(:class_variable_set, lSymSingletonVarName, lSingletonClass.new)
-
-    # Create public methods from iSrcModule to oDstModule, using the singleton as a proxy
-    iSrcModule.instance_methods.map { |iMethodName| iMethodName.to_sym }.each do |iSymMethodName|
-      oDstModule.send(:define_method, iSymMethodName) do |*iArgs, &iBlock|
-        oDstModule.send(:class_variable_get, lSymSingletonVarName).send(iSymMethodName, *iArgs, &iBlock)
+    if !oDstModule.const_defined?("SingletonClassForModule__#{lSrcModuleConstName}")
+      lSingletonClass = oDstModule.const_set("SingletonClassForModule__#{lSrcModuleConstName}", Class.new)
+      lSingletonClass.class_eval("include #{iSrcModule}")
+      # Instantiate it in the module
+      lSymSingletonVarName = "@@__SingletonForModule__#{lSrcModuleConstName}".to_sym
+      oDstModule.send(:class_variable_set, lSymSingletonVarName, lSingletonClass.new)
+      # Create public methods from iSrcModule to oDstModule, using the singleton as a proxy
+      iSrcModule.instance_methods.map { |iMethodName| iMethodName.to_sym }.each do |iSymMethodName|
+        oDstModule.send(:define_method, iSymMethodName) do |*iArgs, &iBlock|
+          oDstModule.send(:class_variable_get, lSymSingletonVarName).send(iSymMethodName, *iArgs, &iBlock)
+        end
       end
     end
-
   end
 
 end
